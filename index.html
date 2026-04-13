@@ -1,0 +1,2591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AP World History">
+<meta name="theme-color" content="#1a1f2e">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<title>AP World History Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+<style>
+
+  /* ═══════════════════════════════════════════
+     SECTION 1: APP SHELL
+  ═══════════════════════════════════════════ */
+
+  :root {
+    --bg-dark:      #1a1f2e;
+    --bg-mid:       #252b3b;
+    --bg-card:      #ffffff;
+    --accent:       #e8c84a;
+    --accent-dim:   rgba(232,200,74,0.15);
+    --text-light:   #f0ede6;
+    --text-dim:     rgba(240,237,230,0.55);
+    --text-dark:    #1a1f2e;
+    --text-mid:     #4a5068;
+    --border:       rgba(255,255,255,0.08);
+
+    --geo-asia:        #3b7fd4;
+    --geo-mideast:     #c94040;
+    --geo-africa:      #9b59b6;
+    --geo-europe:      #27ae60;
+    --geo-americas:    #e67e22;
+
+    --geo-asia-bg:     rgba(59,127,212,0.12);
+    --geo-mideast-bg:  rgba(201,64,64,0.12);
+    --geo-africa-bg:   rgba(155,89,182,0.12);
+    --geo-europe-bg:   rgba(39,174,96,0.12);
+    --geo-americas-bg: rgba(230,126,34,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-light);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: var(--bg-dark);
+  }
+
+  .app-header {
+    background: var(--bg-dark);
+    padding: 0.7rem 1rem 0.5rem;
+    text-align: center;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .app-header h1 {
+    font-family: 'Lora', Georgia, serif;
+    font-size: clamp(1rem, 4vw, 1.25rem);
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+  .app-header .subtitle {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .tab-bar {
+    display: flex;
+    background: var(--bg-mid);
+    flex-shrink: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    border-bottom: 2px solid var(--accent);
+  }
+  .tab-bar::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    flex: 1 1 0;
+    padding: 0.65rem 0.75rem;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+  }
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+  }
+
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    background: #f4f2ee;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .content-tab { padding: 0.8rem; }
+
+  .split-asia-europe     { background: linear-gradient(135deg, var(--geo-asia) 50%, var(--geo-europe) 50%); }
+  .split-europe-asia     { background: linear-gradient(135deg, var(--geo-europe) 50%, var(--geo-asia) 50%); }
+  .split-europe-americas { background: linear-gradient(135deg, var(--geo-europe) 50%, var(--geo-americas) 50%); }
+  .split-europe-africa   { background: linear-gradient(135deg, var(--geo-europe) 50%, var(--geo-africa) 50%); }
+  .split-asia-americas   { background: linear-gradient(135deg, var(--geo-asia) 50%, var(--geo-americas) 50%); }
+
+
+  /* ═══════════════════════════════════════════
+     TAB 1: TIMELINE & FLASHCARDS
+  ═══════════════════════════════════════════ */
+
+  .era-header {
+    padding: 1rem 0.8rem 0.4rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f4f2ee;
+  }
+  .era-label {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bg-dark);
+    opacity: 0.45;
+    margin-bottom: 0.25rem;
+  }
+  .era-title {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--bg-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .era-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--bg-dark);
+    opacity: 0.15;
+  }
+
+  .timeline-section {
+    padding: 0 0.8rem 0.5rem;
+    position: relative;
+  }
+  .timeline-section::before {
+    content: '';
+    position: absolute;
+    left: 1.55rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(26,31,46,0.12);
+  }
+
+  .event-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+    position: relative;
+  }
+
+  .event-dot {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin-top: 0.85rem;
+    border: 2px solid white;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 1;
+  }
+
+  .dot-asia     { background: var(--geo-asia); }
+  .dot-mideast  { background: var(--geo-mideast); }
+  .dot-africa   { background: var(--geo-africa); }
+  .dot-europe   { background: var(--geo-europe); }
+  .dot-americas { background: var(--geo-americas); }
+
+  /* Dual-color dots — class names match sorted geo array output from geoClass() */
+  .dot-asia-europe     { background: linear-gradient(135deg, var(--geo-asia) 50%, var(--geo-europe) 50%); }
+  .dot-americas-europe { background: linear-gradient(135deg, var(--geo-americas) 50%, var(--geo-europe) 50%); }
+  .dot-africa-europe   { background: linear-gradient(135deg, var(--geo-africa) 50%, var(--geo-europe) 50%); }
+  .dot-americas-asia   { background: linear-gradient(135deg, var(--geo-americas) 50%, var(--geo-asia) 50%); }
+
+  .event-card {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    cursor: pointer;
+    overflow: hidden;
+    transition: box-shadow 0.18s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .event-card:active {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  .event-card-bar { height: 4px; width: 100%; }
+  .bar-asia     { background: var(--geo-asia); }
+  .bar-mideast  { background: var(--geo-mideast); }
+  .bar-africa   { background: var(--geo-africa); }
+  .bar-europe   { background: var(--geo-europe); }
+  .bar-americas { background: var(--geo-americas); }
+  /* Dual-color bars — class names match sorted geo array output from geoClass() */
+  .bar-asia-europe     { background: linear-gradient(to right, var(--geo-asia) 50%, var(--geo-europe) 50%); }
+  .bar-americas-europe { background: linear-gradient(to right, var(--geo-americas) 50%, var(--geo-europe) 50%); }
+  .bar-africa-europe   { background: linear-gradient(to right, var(--geo-africa) 50%, var(--geo-europe) 50%); }
+  .bar-americas-asia   { background: linear-gradient(to right, var(--geo-americas) 50%, var(--geo-asia) 50%); }
+
+  .event-card-front {
+    padding: 0.55rem 0.75rem 0.3rem;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .event-card-label {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    line-height: 1.35;
+    flex: 1;
+  }
+  .event-card-year {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-mid);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .event-card-tap-hint {
+    font-size: 0.65rem;
+    color: var(--text-mid);
+    opacity: 0.5;
+    padding: 0 0.75rem 0.45rem;
+  }
+
+  .event-card-back {
+    display: none;
+    padding: 0.6rem 0.75rem 0.75rem;
+    border-top: 1px solid rgba(0,0,0,0.07);
+    background: #fafaf8;
+  }
+  .event-card-back.open { display: block; }
+
+  .event-card-back ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: fact-counter;
+  }
+  .event-card-back ol li {
+    counter-increment: fact-counter;
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+    font-size: 0.84rem;
+    color: var(--text-dark);
+    line-height: 1.6;
+  }
+  .event-card-back ol li:last-child { margin-bottom: 0; }
+  .event-card-back ol li::before {
+    content: counter(fact-counter);
+    flex-shrink: 0;
+    width: 1.3rem;
+    height: 1.3rem;
+    border-radius: 50%;
+    background: var(--bg-dark);
+    color: var(--accent);
+    font-size: 0.65rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.18rem;
+  }
+
+  .event-card-chevron {
+    display: inline-block;
+    font-size: 0.6rem;
+    color: var(--text-mid);
+    opacity: 0.45;
+    margin-left: 0.3rem;
+    transition: transform 0.2s;
+    vertical-align: middle;
+  }
+  .event-card.expanded .event-card-chevron {
+    transform: rotate(180deg);
+  }
+
+  .geo-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.75rem;
+    padding: 0.6rem 0.8rem 0.3rem;
+  }
+  .geo-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.68rem;
+    color: var(--text-mid);
+    letter-spacing: 0.04em;
+  }
+  .geo-legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+
+  /* ═══════════════════════════════════════════
+     TAB 2: GAMES
+  ═══════════════════════════════════════════ */
+
+  /* ── Game selector ── */
+  .game-selector {
+    display: flex;
+    gap: 0;
+    background: var(--bg-dark);
+    padding: 0.6rem 0.8rem;
+    gap: 0.5rem;
+  }
+  .game-select-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.5rem 0.25rem;
+    background: var(--bg-mid);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .game-select-btn.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .game-select-icon { font-size: 1.1rem; line-height: 1; }
+  .game-select-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  /* ── Score bar ── */
+  .game-score-bar {
+    display: flex;
+    background: var(--bg-mid);
+    padding: 0.5rem 0.8rem;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .game-score-item {
+    flex: 1;
+    text-align: center;
+  }
+  .game-score-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.1rem;
+  }
+  .game-score-value {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  /* ── Game panels ── */
+  .game-panel { display: none; }
+  .game-panel.active { display: block; }
+
+  .game-content {
+    padding: 0.8rem;
+    min-height: 200px;
+  }
+
+  /* ── Shared question card ── */
+  .game-question-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem 1rem 0.75rem;
+    margin-bottom: 0.8rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+  }
+  .game-question-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-mid);
+    margin-bottom: 0.5rem;
+  }
+  .game-event-name {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    line-height: 1.35;
+  }
+  .game-event-year-hint {
+    font-size: 0.75rem;
+    color: var(--text-mid);
+    margin-top: 0.25rem;
+  }
+
+  /* ── Feedback banner ── */
+  .game-feedback {
+    border-radius: 8px;
+    padding: 0.65rem 0.9rem;
+    margin-bottom: 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .game-feedback.show { display: flex; }
+  .game-feedback.correct {
+    background: rgba(39,174,96,0.12);
+    color: #1a6b3a;
+    border: 1px solid rgba(39,174,96,0.3);
+  }
+  .game-feedback.wrong {
+    background: rgba(201,64,64,0.1);
+    color: #8b1a1a;
+    border: 1px solid rgba(201,64,64,0.25);
+  }
+  .game-feedback-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+  /* ── Next button ── */
+  .game-next-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--bg-dark);
+    color: var(--accent);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: none;
+    margin-top: 0.4rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .game-next-btn.show { display: block; }
+
+  /* ── PLACE IT specific ── */
+  .place-it-instruction {
+    font-size: 0.8rem;
+    color: var(--text-mid);
+    margin-bottom: 0.7rem;
+    line-height: 1.45;
+  }
+  .era-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+  .era-choice-btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 2px solid rgba(26,31,46,0.12);
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .era-choice-btn:active { background: #f0f0f0; }
+  .era-choice-title {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+  .era-choice-range {
+    font-size: 0.72rem;
+    color: var(--text-mid);
+    margin-top: 0.1rem;
+  }
+  .era-choice-btn.correct-pick {
+    border-color: #27ae60;
+    background: rgba(39,174,96,0.08);
+  }
+  .era-choice-btn.wrong-pick {
+    border-color: #c94040;
+    background: rgba(201,64,64,0.06);
+  }
+  .era-choice-btn:disabled { cursor: default; }
+
+  /* Position markers — shown after correct era tap */
+  .position-stage {
+    display: none;
+    margin-top: 0.6rem;
+  }
+  .position-stage.show { display: block; }
+  .position-instruction {
+    font-size: 0.8rem;
+    color: var(--text-mid);
+    margin-bottom: 0.6rem;
+    line-height: 1.45;
+  }
+  .position-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .position-btn {
+    width: 100%;
+    padding: 0.6rem 0.9rem;
+    background: white;
+    border: 2px solid rgba(26,31,46,0.12);
+    border-radius: 7px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.84rem;
+    color: var(--text-dark);
+    transition: border-color 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .position-btn .pos-label { font-family: 'Lora', Georgia, serif; font-weight: 600; }
+  .position-btn .pos-year  { font-size: 0.72rem; color: var(--text-mid); }
+  .position-btn.correct-pick {
+    border-color: #27ae60;
+    background: rgba(39,174,96,0.08);
+  }
+  .position-btn.wrong-pick {
+    border-color: #c94040;
+    background: rgba(201,64,64,0.06);
+  }
+  .position-btn:disabled { cursor: default; }
+
+  /* ── WHICH CAME FIRST specific ── */
+  .which-first-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+  }
+  .which-first-btn {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: white;
+    border: 2px solid rgba(26,31,46,0.12);
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .which-first-btn:active { background: #f0f0f0; }
+  .which-first-btn .wf-label {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    line-height: 1.3;
+  }
+  .which-first-btn .wf-year {
+    font-size: 0.72rem;
+    color: var(--text-mid);
+    margin-top: 0.2rem;
+    display: none; /* revealed after answer */
+  }
+  .which-first-btn.correct-pick {
+    border-color: #27ae60;
+    background: rgba(39,174,96,0.08);
+  }
+  .which-first-btn.wrong-pick {
+    border-color: #c94040;
+    background: rgba(201,64,64,0.06);
+  }
+  .which-first-btn.reveal-year .wf-year { display: block; }
+  .which-first-btn:disabled { cursor: default; }
+
+  /* ── SORT IT specific ── */
+  .sort-it-instruction {
+    font-size: 0.8rem;
+    color: var(--text-mid);
+    margin-bottom: 0.7rem;
+    line-height: 1.45;
+  }
+  .sort-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    margin-bottom: 0.6rem;
+  }
+  .sort-btn {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    background: white;
+    border: 2px solid rgba(26,31,46,0.12);
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: border-color 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sort-btn:active { background: #f0f0f0; }
+  .sort-btn-rank {
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: var(--bg-dark);
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    opacity: 0.25;
+    transition: opacity 0.15s;
+  }
+  .sort-btn.selected .sort-btn-rank { opacity: 1; }
+  .sort-btn-label {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    line-height: 1.3;
+    flex: 1;
+  }
+  .sort-btn-year {
+    font-size: 0.7rem;
+    color: var(--text-mid);
+    display: none;
+  }
+  .sort-btn.correct-pick {
+    border-color: #27ae60;
+    background: rgba(39,174,96,0.08);
+  }
+  .sort-btn.wrong-pick {
+    border-color: #c94040;
+    background: rgba(201,64,64,0.06);
+  }
+  .sort-btn.reveal-year .sort-btn-year { display: block; }
+  .sort-btn:disabled { cursor: default; }
+  .sort-submit-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--bg-dark);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0.35;
+    transition: opacity 0.15s;
+    margin-bottom: 0.5rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sort-submit-btn.ready {
+    opacity: 1;
+    background: var(--bg-dark);
+    color: var(--accent);
+  }
+
+
+  /* ═══════════════════════════════════════════
+     TAB 3: ART & PRIMARY SOURCES
+  ═══════════════════════════════════════════ */
+
+  .art-tab-content {
+    padding: 0.8rem;
+  }
+
+  /* ── Art card ── */
+  .art-card {
+    background: white;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+  }
+
+  /* Image area */
+  .art-card-img-wrap {
+    width: 100%;
+    background: #e8e4dd;
+    position: relative;
+  }
+  .art-card-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+  }
+  .art-card-img-placeholder {
+    width: 100%;
+    padding: 2.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #e8e4dd 0%, #d8d0c4 100%);
+    color: #9a9080;
+    gap: 0.4rem;
+  }
+  .art-card-img-placeholder span { font-size: 2.2rem; opacity: 0.5; }
+  .art-card-img-placeholder p {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  /* Columbia scroll link */
+  .art-scroll-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1rem 1.1rem;
+    background: linear-gradient(135deg, #1a1f2e 0%, #252b3b 100%);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .art-scroll-link-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .art-scroll-link-text { flex: 1; }
+  .art-scroll-link-title {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 0.88rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .art-scroll-link-sub {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-top: 0.15rem;
+    letter-spacing: 0.04em;
+  }
+  .art-scroll-link-arrow {
+    font-size: 1rem;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* Card header */
+  .art-card-header {
+    background: var(--bg-dark);
+    padding: 0.7rem 1rem;
+  }
+  .art-card-title {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent);
+    font-style: italic;
+    line-height: 1.25;
+  }
+  .art-card-meta {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin-top: 0.2rem;
+    letter-spacing: 0.06em;
+  }
+
+  /* Card body */
+  .art-card-body {
+    padding: 0.85rem 1rem;
+  }
+
+  /* Context points */
+  .art-context-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.85rem 0;
+  }
+  .art-context-list li {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+    font-size: 0.84rem;
+    color: var(--text-dark);
+    line-height: 1.6;
+  }
+  .art-context-list li:last-child { margin-bottom: 0; }
+  .art-context-bullet {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-top: 0.5rem;
+  }
+
+  /* Look for prompt */
+  .art-look-for {
+    background: #f4f2ee;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 0.6rem 0.85rem;
+    margin-bottom: 0.85rem;
+  }
+  .art-look-for-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-mid);
+    margin-bottom: 0.25rem;
+  }
+  .art-look-for-text {
+    font-size: 0.84rem;
+    color: var(--text-dark);
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  /* Connected events */
+  .art-connected-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-mid);
+    margin-bottom: 0.4rem;
+  }
+  .art-connected-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .art-connected-chip {
+    background: var(--bg-dark);
+    color: var(--text-dim);
+    font-size: 0.7rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    line-height: 1.3;
+    border: 1px solid var(--border);
+  }
+  .art-connected-chip .chip-year {
+    color: var(--accent);
+    font-weight: 600;
+    margin-left: 0.3rem;
+  }
+
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <div class="app-header">
+    <h1>AP World History Review</h1>
+    <div class="subtitle">Timeline · Games · Art &amp; Primary Sources</div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="showTab('timeline', this)">📅 Timeline</button>
+    <button class="tab-btn" onclick="showTab('games', this)">🎮 Games</button>
+    <button class="tab-btn" onclick="showTab('art', this)">🎨 Art</button>
+  </div>
+
+  <div class="content">
+
+    <div class="tab-panel active" id="tab-timeline">
+      <!-- Built by buildTimeline() -->
+    </div>
+
+    <div class="tab-panel" id="tab-games">
+
+      <!-- Game selector -->
+      <div class="game-selector">
+        <button class="game-select-btn active" onclick="selectGame('place-it', this)">
+          <span class="game-select-icon">📍</span>
+          <span class="game-select-label">Place It</span>
+        </button>
+        <button class="game-select-btn" onclick="selectGame('which-first', this)">
+          <span class="game-select-icon">⚡</span>
+          <span class="game-select-label">Which Came First?</span>
+        </button>
+        <button class="game-select-btn" onclick="selectGame('sort-it', this)">
+          <span class="game-select-icon">🔢</span>
+          <span class="game-select-label">Sort It</span>
+        </button>
+      </div>
+
+      <!-- PLACE IT -->
+      <div class="game-panel active" id="game-place-it">
+        <div class="game-score-bar">
+          <div class="game-score-item">
+            <div class="game-score-label">Streak</div>
+            <div class="game-score-value" id="place-it-streak">0</div>
+          </div>
+          <div class="game-score-item">
+            <div class="game-score-label">Best</div>
+            <div class="game-score-value" id="place-it-best">0</div>
+          </div>
+          <div class="game-score-item">
+            <div class="game-score-label">Correct</div>
+            <div class="game-score-value" id="place-it-correct">0</div>
+          </div>
+          <div class="game-score-item">
+            <div class="game-score-label">Total</div>
+            <div class="game-score-value" id="place-it-total">0</div>
+          </div>
+        </div>
+        <div class="game-content" id="place-it-content"></div>
+      </div>
+
+      <!-- WHICH CAME FIRST -->
+      <div class="game-panel" id="game-which-first">
+        <div class="game-score-bar">
+          <div class="game-score-item">
+            <div class="game-score-label">Streak</div>
+            <div class="game-score-value" id="which-first-streak">0</div>
+          </div>
+          <div class="game-score-item">
+            <div class="game-score-label">Best</div>
+            <div class="game-score-value" id="which-first-best">0</div>
+          </div>
+          <div class="game-score-item">
+            <div class="game-score-label">Correct</div>
+            <div class="game-score-value" id="which-first-correct">0</div>
+          </div>
+          <div class="game-score-item">
+            <div class="game-score-label">Total</div>
+            <div class="game-score-value" id="which-first-total">0</div>
+          </div>
+        </div>
+        <div class="game-content" id="which-first-content"></div>
+      </div>
+
+      <!-- SORT IT -->
+      <div class="game-panel" id="game-sort-it">
+        <div class="game-score-bar">
+          <div class="game-score-item">
+            <div class="game-score-label">Streak</div>
+            <div class="game-score-value" id="sort-it-streak">0</div>
+          </div>
+          <div class="game-score-item">
+            <div class="game-score-label">Best</div>
+            <div class="game-score-value" id="sort-it-best">0</div>
+          </div>
+          <div class="game-score-item">
+            <div class="game-score-label">Correct</div>
+            <div class="game-score-value" id="sort-it-correct">0</div>
+          </div>
+          <div class="game-score-item">
+            <div class="game-score-label">Total</div>
+            <div class="game-score-value" id="sort-it-total">0</div>
+          </div>
+        </div>
+        <div class="game-content" id="sort-it-content"></div>
+      </div>
+
+    </div>
+
+    <div class="tab-panel" id="tab-art">
+      <div class="art-tab-content" id="art-tab-content">
+        <!-- Built by buildArtTab() -->
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     DATA LAYER
+═══════════════════════════════════════════ -->
+<script>
+
+const EVENTS = [
+
+  // ─── ERA 1: 1200–1450 ───────────────────
+
+  {
+    id: 'genghis-khan',
+    year: 1227,
+    era: 1,
+    label: 'Death of Genghis Khan',
+    geo: ['asia'],
+    facts: [
+      "Genghis Khan united the previously fragmented Mongol tribes into a single, powerful fighting force.",
+      "The Mongol military promoted soldiers based on merit rather than birth, making it unusually effective for its time.",
+      "The Mongols conquered the largest contiguous land empire in history, stretching across most of Eurasia and controlling Silk Road trade.",
+      "Mongol military success relied heavily on horses, giving them unmatched speed and mobility in battle.",
+      "The Mongols pioneered psychological warfare — cities that surrendered were spared; those that resisted faced total destruction.",
+      "After Genghis Khan's death, the empire split into four khanates, which eventually diverged in culture and policy."
+    ]
+  },
+  {
+    id: 'abbasid',
+    year: 1258,
+    era: 1,
+    label: 'Fall of the Abbasid Caliphate / Baghdad / House of Wisdom',
+    geo: ['mideast'],
+    facts: [
+      "The Abbasid Caliphate presided over the Islamic Golden Age, a period of remarkable intellectual and cultural achievement.",
+      "Muslim scholars made groundbreaking advances in medicine, philosophy, and science that would later influence the European Renaissance.",
+      "The House of Wisdom in Baghdad functioned as a library, university, translation center, and research institution all in one — one of the greatest centers of learning in the medieval world.",
+      "Baghdad was one of the most advanced cities of its era, with public services including hospitals, sewers, and plumbing.",
+      "In 1258, Mongol forces destroyed Baghdad and burned the House of Wisdom, effectively ending the Islamic Golden Age."
+    ]
+  },
+  {
+    id: 'song-dynasty',
+    year: 1279,
+    era: 1,
+    label: 'Fall of the Song Dynasty',
+    geo: ['asia'],
+    facts: [
+      "The Song Dynasty represented a Golden Age of Chinese civilization, marked by major advances in technology, economics, agriculture, and art.",
+      "Song technological innovations — including refined uses of gunpowder, the magnetic compass, and sternpost rudders.",
+      "The Song economy was remarkably open, allowing freestanding markets and fostering one of the most commercially active societies in the medieval world.",
+      "The introduction of Champa rice, an early-ripening and drought-resistant strain, dramatically increased agricultural output and supported population growth.",
+      "Song art celebrated the natural world, with Northern Song painting tending toward grand, sweeping landscapes and Southern Song favoring intimate slices of nature, often diagonally composed with deliberate empty space.",
+      "Like the Abbasid Caliphate before it, the Song Dynasty ultimately fell to Mongol conquest in 1279."
+    ]
+  },
+  {
+    id: 'yuan-dynasty',
+    year: 1279, yearEnd: 1368,
+    era: 1,
+    label: 'Yuan Dynasty',
+    geo: ['asia'],
+    facts: [
+      "The Yuan Dynasty was the Mongol-ruled dynasty of China, established after the conquest of the Song Dynasty in 1279.",
+      "Its most notable ruler was Kublai Khan, grandson of Genghis Khan, who consolidated Mongol control over China.",
+      "Kublai Khan moved the imperial capital to Khanbaliq, the city that would eventually become modern-day Beijing.",
+      "Despite its power, the Yuan Dynasty was short-lived, lasting less than a century before being overthrown in 1368."
+    ]
+  },
+  {
+    id: 'mansa-musa',
+    year: 1325,
+    era: 1,
+    label: "Mansa Moussa's Hajj",
+    geo: ['africa'],
+    facts: [
+      "Mansa Musa was the ruler of the Mali Empire, which presided over a West African Golden Age built on control of the trans-Saharan Sand Roads trade network.",
+      "Salt from North Africa and gold from the south flowed through Mali, and the empire grew wealthy by controlling and taxing that exchange.",
+      "Islam spread into West Africa primarily through traders, and a syncretic version of Islam — blended with local traditions — became prominent in urban areas and among ruling elites.",
+      "While stopping in Cairo on his way to Mecca for the Hajj in 1325, Mansa Musa distributed so much gold that he triggered an inflationary crisis in Egypt that lasted years."
+    ]
+  },
+  {
+    id: 'ibn-battuta',
+    year: 1324, yearEnd: 1354,
+    era: 1,
+    label: 'Travels of Ibn Battuta',
+    geo: ['mideast'],
+    facts: [
+      "Ibn Battuta was one of history's greatest travelers, journeying across the Silk Roads, Sand Roads, and Sea Roads over three decades and covering roughly 75,000 miles.",
+      "As an Islamic Qadi (judge), Ibn Battuta's travels were partly motivated by religious pilgrimage and duty, and he documented his journeys in a detailed travel log known as the Rihla.",
+      "The domestication of the Arabian camel was essential to Sand Roads travel, allowing traders and travelers to cross vast desert stretches that would otherwise have been impassable.",
+      "When Ibn Battuta visited the Mali Empire, he was critical of the syncretic version of Islam he encountered there, disapproving of the way local traditions had blended with Islamic practice.",
+      "Ibn Battuta was born on February 24 — a date celebrated by admirers of his legacy around the world, and observed with particular enthusiasm by certain AP World History classes that threw him a 722nd birthday party."
+    ]
+  },
+  {
+    id: 'bubonic-plague',
+    year: 1347, yearEnd: 1353,
+    era: 1,
+    label: 'Bubonic Plague',
+    geo: ['europe'],
+    facts: [
+      "The Bubonic Plague arrived in Europe via Silk Road trade routes, likely originating in Central Asia and spreading westward through commerce and movement of people.",
+      "The Mongol general Janibeg, while besieging the Genoese trading city of Caffa in Crimea, catapulted plague-infected corpses over the city walls — one of the earliest recorded acts of biological warfare — and fleeing survivors carried the disease into Europe.",
+      "The plague devastated Europe, killing nearly half the population of most urban centers between 1347 and 1353.",
+      "The Catholic Church had no answers for the catastrophe, leading to a collapse of religious authority and widespread hysteria.",
+      "Jews were falsely blamed for poisoning wells, fueling violent antisemitism across Europe that culminated in the Strasbourg Massacre of February 14, 1349, in which approximately 2,000 Jews were killed."
+    ]
+  },
+  {
+    id: 'ming-dynasty',
+    year: 1368,
+    era: 1,
+    label: 'Red Turban Rebellion and Establishment of the Ming Dynasty',
+    geo: ['asia'],
+    facts: [
+      "The Red Turban Rebellion was a peasant uprising that overthrew the Mongol Yuan Dynasty, driven by widespread famine, flooding of the Yellow River, and resentment of foreign Mongol rule.",
+      "The rebellion was led by Zhu Yuanzhang, a peasant of humble origins who rose through the rebel ranks to become the founding emperor of the Ming Dynasty.",
+      "The Ming Dynasty represented a return to native Han Chinese rule after nearly a century of Mongol domination.",
+      "The early Ming emperors pursued a policy of further emphasizing Confucian bureaucracy and civil service exams, reasserting traditional Chinese governance structures.",
+      "The Ming Dynasty would go on to be one of the most stable and long-lasting dynasties in Chinese history, ruling from 1368 to 1644."
+    ]
+  },
+
+  // ─── ERA 2: 1450–1750 ───────────────────
+
+  {
+    id: 'zheng-he',
+    year: 1405, yearEnd: 1433,
+    era: 2,
+    label: 'Voyages of Zheng He',
+    geo: ['asia'],
+    facts: [
+      "Zheng He was a Chinese Muslim admiral who led seven massive naval expeditions on behalf of the Ming Dynasty, traveling throughout Southeast Asia, India, the Persian Gulf, and the east coast of Africa.",
+      "His fleet was enormous by the standards of the era — comprising hundreds of ships, including massive 'treasure ships' far larger than anything European explorers would build for decades.",
+      "The voyages were primarily diplomatic in purpose, projecting Chinese power and collecting tribute from foreign rulers rather than establishing colonies or extracting resources.",
+      "After Zheng He's death, Confucian bureaucrats at the Ming court argued the voyages were wasteful and un-Confucian, and China turned inward — a sharp contrast to the European Age of Exploration that was just beginning."
+    ]
+  },
+  {
+    id: 'constantinople',
+    year: 1453,
+    era: 2,
+    label: 'Ottomans Conquer Constantinople',
+    geo: ['mideast'],
+    facts: [
+      "In 1453, the Ottoman Sultan Mehmed II conquered Constantinople, bringing an end to the Byzantine Empire and the last remnant of the Roman Empire after more than a thousand years.",
+      "The Ottomans used massive cannons to attack the famous walls of Constantinople — a landmark moment in the history of gunpowder warfare.",
+      "The fall of Constantinople gave the Ottomans control of the critical land trade routes between Europe and Asia, disrupting commerce and helping push European powers to seek new sea routes to the East.",
+      "Mehmed II renamed the city Istanbul and made it the new capital of the Ottoman Empire, transforming it into one of the greatest cities in the world — and notably allowed Christians and Jews to practice their faiths under Ottoman rule, reflecting a policy of relative religious tolerance.",
+      "The Ottoman Empire at its height spanned three continents — Europe, Asia, and Africa — and represented one of the most powerful and administratively sophisticated states of the early modern period."
+    ]
+  },
+  {
+    id: 'medici',
+    year: 1449, yearEnd: 1492,
+    era: 2,
+    label: 'Life of Lorenzo de Medici',
+    geo: ['europe'],
+    facts: [
+      "Lorenzo de Medici was the ruler of Florence and one of the most powerful patrons of the arts in history, using his family's vast banking wealth to fund artists, architects, and intellectuals.",
+      "His patronage helped make Florence the epicenter of the Italian Renaissance, supporting figures such as Botticelli, Leonardo da Vinci, and Michelangelo.",
+      "Lorenzo was not just a patron but an intellectual and poet in his own right, embodying the Renaissance ideal of the 'Renaissance man' — someone accomplished across multiple disciplines.",
+      "The Medici model of combining political power, financial wealth, and cultural patronage became a template for how Renaissance rulers projected power and legitimacy."
+    ]
+  },
+  {
+    id: 'columbus',
+    year: 1492,
+    era: 2,
+    label: 'Columbus Arrives in the Western Hemisphere',
+    geo: ['europe', 'americas'],
+    facts: [
+      "In 1492, Christopher Columbus, sailing under the Spanish crown, landed in the Caribbean, initiating sustained contact between Europe and the Americas and permanently transforming both worlds.",
+      "Columbus's arrival set off the Columbian Exchange — the massive transfer of plants, animals, diseases, and people between the Eastern and Western Hemispheres that reshaped global ecology, agriculture, and population.",
+      "European diseases, to which Indigenous populations had no immunity, devastated Native American communities, with some estimates suggesting population losses of up to 90% in the decades following contact.",
+      "Columbus's voyages opened the Americas to European colonization, producing three distinct types of colonial societies: sugar colonies in the Caribbean and Brazil built on enslaved African labor, colonies in the lands of the Aztec and Inca (New Spain) where Europeans exploited existing Indigenous labor structures, and settler colonies in North America where Europeans displaced Indigenous populations and built new communities.",
+      "From the perspective of the Americas, 1492 marks not a discovery but an encounter — one with catastrophic consequences for the peoples who had lived there for thousands of years."
+    ]
+  },
+  {
+    id: 'vasco-da-gama',
+    year: 1498,
+    era: 2,
+    label: 'Portuguese and Vasco da Gama Arrive in the Indian Ocean',
+    geo: ['europe', 'asia'],
+    facts: [
+      "In 1498, Portuguese explorer Vasco da Gama became the first European to reach India by sea, sailing around the southern tip of Africa and opening a direct maritime trade route between Europe and Asia.",
+      "This route bypassed the Ottoman-controlled land routes through the Middle East, allowing Portugal to access the lucrative spice trade without paying tribute to intermediaries.",
+      "The Portuguese used a combination of superior naval firepower and aggression to force their way into the Indian Ocean trade network, which had previously been dominated by Arab, Indian, and Chinese merchants.",
+      "Portugal established a string of fortified trading posts around the Indian Ocean rim — from East Africa to India to Southeast Asia — creating what historians call a 'Trading Post Empire,' the first European maritime empire in Asia.",
+      "Da Gama's voyage marked the beginning of a new era in which European powers increasingly projected military and commercial power into the Indian Ocean world, gradually disrupting centuries-old trade relationships."
+    ]
+  },
+  {
+    id: 'sistine-chapel',
+    year: 1508, yearEnd: 1512,
+    era: 2,
+    label: 'Michelangelo and the Sistine Chapel',
+    geo: ['europe'],
+    facts: [
+      "Between 1508 and 1512, Michelangelo painted the ceiling of the Sistine Chapel in Rome, commissioned by Pope Julius II, producing one of the greatest works of art in human history.",
+      "The ceiling depicts scenes from the Book of Genesis, most famously the Creation of Adam, in which God reaches out to touch the finger of a reclining Adam — an image that has become one of the most recognizable in Western art.",
+      "Michelangelo approached the human body with unprecedented realism and grandeur, reflecting the Renaissance emphasis on humanism — the idea that human beings and the human form were worthy of serious artistic and intellectual attention.",
+      "The Sistine Chapel ceiling represents the intersection of Renaissance art and Catholic Church patronage — the Church used art on a massive scale to project power, inspire awe, and reinforce religious authority.",
+      "Scholars have identified several hidden messages in the Sistine Chapel ceiling — most notably that the shape surrounding God in the Creation of Adam closely mirrors the anatomical outline of a human brain, suggesting Michelangelo, who was known to have dissected corpses to study anatomy, may have embedded a tribute to human intellect and knowledge at the very moment of divine creation."
+    ]
+  },
+  {
+    id: 'dona-marina',
+    year: 1500, yearEnd: 1529,
+    era: 2,
+    label: 'Doña Marina and the Fall of the Aztec Empire',
+    geo: ['americas'],
+    facts: [
+      "Doña Marina, also known as La Malinche, was a Native American woman who served as translator and advisor to Spanish conquistador Hernán Cortés, playing a pivotal role in the Spanish conquest of the Aztec Empire.",
+      "Her ability to speak both Nahuatl (the Aztec language) and Maya allowed Cortés to communicate with and manipulate Indigenous peoples, making her arguably one of the most consequential figures in the conquest.",
+      "Cortés was able to defeat the powerful Aztec Empire not just through military superiority but by exploiting existing tensions — many Indigenous peoples who resented Aztec domination allied with the Spanish against the Aztec capital of Tenochtitlan.",
+      "The fall of Tenochtitlan in 1521 was also accelerated by smallpox, which devastated the Aztec population while largely sparing the Spanish, illustrating the catastrophic role of disease in the conquest of the Americas.",
+      "Doña Marina remains a deeply contested historical figure — celebrated by some as a survivor and pragmatist, condemned by others as a traitor, and claimed by Mexican culture as a symbol of the complex mixed heritage born from the collision of two worlds."
+    ]
+  },
+  {
+    id: 'luther',
+    year: 1517,
+    era: 2,
+    label: 'Martin Luther and the 95 Theses',
+    geo: ['europe'],
+    facts: [
+      "In 1517, German monk Martin Luther published his 95 Theses, a list of grievances against the Catholic Church, most notably attacking the sale of indulgences — the practice of paying for forgiveness of sins — as corrupt and theologically bankrupt.",
+      "Luther argued that salvation came through faith alone and that the Bible, not the Pope, was the ultimate religious authority — ideas that directly challenged the institutional power of the Catholic Church.",
+      "The printing press, invented just decades earlier, allowed Luther's ideas to spread rapidly across Europe, making the Reformation the first major movement in history to be amplified by mass media.",
+      "Luther's challenge sparked the Protestant Reformation, permanently splitting Western Christianity into Catholic and Protestant branches and triggering decades of religious warfare across Europe.",
+      "The Reformation weakened the universal authority of the Catholic Church and contributed to the rise of more individualistic approaches to faith, laying groundwork for broader intellectual and political transformations in European society.",
+      "The Catholic Church responded to the Protestant Reformation with the Counter-Reformation — a sweeping effort to address corruption, clarify doctrine, and reassert Catholic authority, most notably through the Council of Trent and the founding of the Jesuit order as a force for education and missionary work."
+    ]
+  },
+  {
+    id: 'copernicus',
+    year: 1543,
+    era: 2,
+    label: 'Copernicus Publishes On the Revolutions of the Heavenly Spheres',
+    geo: ['europe'],
+    facts: [
+      "In 1543, Polish astronomer Nicolaus Copernicus published his theory that the Earth and planets revolve around the Sun — known as heliocentrism — directly challenging the long-held geocentric model that placed Earth at the center of the universe.",
+      "The geocentric model had been endorsed by both the Catholic Church and the ancient Greek philosophers Aristotle and Ptolemy, meaning Copernicus was challenging not just science but religious authority and centuries of accepted wisdom simultaneously.",
+      "Copernicus is considered the spark that ignited the Scientific Revolution — a fundamental shift in how Europeans understood the natural world, privileging observation and reason over tradition and scripture.",
+      "Fearing persecution, Copernicus reportedly only received a copy of his published work on his deathbed, having delayed publication for years — illustrating the profound tension between new scientific ideas and established religious authority.",
+      "The heliocentric theory would be built upon by later scientists including Galileo and Newton, forming a chain of discovery that transformed humanity's understanding of its place in the universe."
+    ]
+  },
+  {
+    id: 'akbar',
+    year: 1556, yearEnd: 1605,
+    era: 2,
+    label: 'Rule of Emperor Akbar, Mughal Dynasty',
+    geo: ['asia'],
+    facts: [
+      "Akbar was the greatest emperor of the Mughal Dynasty, ruling over a vast empire that covered most of the Indian subcontinent and presiding over a period of remarkable political stability, economic prosperity, and cultural achievement.",
+      "Despite being Muslim, Akbar pursued a deliberate policy of religious tolerance, abolishing the jizya tax on non-Muslims, welcoming Hindu, Christian, and Zoroastrian scholars to his court, and even developing his own syncretic religious philosophy called Din-i-Ilahi.",
+      "Akbar was a gifted military strategist and administrator who unified diverse peoples under a single imperial system, using a combination of conquest, diplomacy, and strategic marriage alliances with Hindu Rajput rulers. He also modernized the taxation system, tying tax obligations to agricultural output rather than fixed rates, which made the system more equitable and responsive to actual harvests.",
+      "His court was a center of art, literature, and architecture, reflecting the rich cultural synthesis of Persian, Islamic, and Hindu traditions that defined Mughal civilization at its height."
+    ]
+  },
+  {
+    id: 'voc',
+    year: 1602,
+    era: 2,
+    label: 'Dutch Establish the VOC',
+    geo: ['europe', 'asia'],
+    facts: [
+      "The VOC, or Dutch East India Company, founded in 1602, was the world's first joint-stock company — allowing multiple investors to pool capital and share both the profits and risks of long-distance trade, a revolutionary innovation in the history of capitalism.",
+      "The VOC was granted extraordinary powers by the Dutch government, including the ability to negotiate treaties, wage war, and establish colonies on behalf of the Netherlands — making it essentially a private company with the powers of a state.",
+      "The VOC aggressively pushed into the Indian Ocean trade network, challenging Portuguese dominance and eventually establishing its headquarters at Batavia in present-day Indonesia, making the Dutch the dominant European power in Asian trade for much of the 17th century.",
+      "The VOC brutally monopolized the spice trade — most notoriously on the Banda Islands, the world's only source of nutmeg and mace, where Dutch forces carried out a systematic genocide of the indigenous Bandanese people to seize total control of the islands and their extraordinarily valuable crops. The VOC similarly monopolized cloves from the nearby Maluku Islands, destroying any trees outside their control to keep prices high.",
+      "At its peak the VOC was the most valuable company in history, illustrating the enormous wealth generated by controlling the spice trade between Asia and Europe."
+    ]
+  },
+  {
+    id: 'galileo',
+    year: 1610,
+    era: 2,
+    label: 'Galileo Uses the Telescope to Prove Heliocentrism',
+    geo: ['europe'],
+    facts: [
+      "In 1610, Galileo used a telescope to observe the night sky, discovering moons orbiting Jupiter, the phases of Venus, and the craters of the Moon — observations that provided concrete evidence for the heliocentric model first proposed by Copernicus.",
+      "Galileo's work represented a fundamental shift in how knowledge was produced — rather than relying on ancient texts or religious authority, he used direct observation and experimentation, a cornerstone of what we now call the scientific method.",
+      "The Catholic Church condemned Galileo's findings as heretical, forcing him to recant his support for heliocentrism under threat of the Inquisition — one of history's most dramatic confrontations between science and religious authority.",
+      "Galileo is often called the 'father of modern observational astronomy' and his methods laid the groundwork for the broader Scientific Revolution that would culminate with Newton later in the century.",
+      "The persecution of Galileo became a lasting symbol of the tension between free intellectual inquiry and institutional power — a debate that echoes far beyond the 17th century."
+    ]
+  },
+  {
+    id: 'enslaved-labor',
+    year: 1619,
+    era: 2,
+    label: 'Enslaved Labor First Used in the English Colonies of North America',
+    geo: ['americas'],
+    facts: [
+      "In 1619, the first enslaved Africans arrived in the English colony of Virginia, marking the beginning of a system of race-based chattel slavery that would define American society for centuries.",
+      "African enslaved people were brought to the Americas through the Trans-Atlantic Slave Trade, one of the largest forced migrations in human history, in which an estimated 12 million Africans were transported to the Western Hemisphere under brutal conditions.",
+      "Enslaved labor became the economic foundation of the plantation system, particularly in the cultivation of tobacco, sugar, and later cotton — crops that generated enormous wealth for colonial and later American society while inflicting immense suffering on enslaved people.",
+      "Slavery in the English colonies developed a uniquely rigid three-race system — white, Black, and Indian — with almost no manumission (formal freeing of enslaved people) or miscegenation (racial mixing) compared to Latin American colonial societies. This rigidity produced the most racist system in the Americas, even if not the most brutal — in contrast, the sugar colonies of Brazil and the Caribbean were far more physically brutal, yet Latin American societies developed more fluid racial categories precisely because manumission and miscegenation were widespread and socially accepted.",
+      "The institution of slavery in North America connects directly to the broader colonial system established after 1492, representing one of the most devastating consequences of European expansion into the Americas."
+    ]
+  },
+  {
+    id: 'qing-dynasty',
+    year: 1644,
+    era: 2,
+    label: 'Fall of the Ming Dynasty and Rise of the Qing Dynasty',
+    geo: ['asia'],
+    facts: [
+      "The Ming Dynasty, weakened by political corruption, economic instability, and a series of devastating famines, collapsed in 1644 when rebel forces led by Li Zicheng — known as 'The Dashing Prince' — captured Beijing and the last Ming emperor took his own life.",
+      "The Manchu people from northeastern China swept in to fill the power vacuum, initially invited in by Ming general Wu Sangui to help suppress Li Zicheng's rebellion — but instead establishing the Qing Dynasty, making it the second time in Chinese history that a foreign ethnic group had conquered and ruled China, following the Mongol Yuan Dynasty.",
+      "The Qing initially faced significant resistance from Han Chinese who viewed Manchu rule as illegitimate, but the dynasty consolidated power by largely preserving Chinese administrative structures and Confucian governance traditions.",
+      "The Qing required Han Chinese men to wear their hair in a queue — a long braid — as a visible symbol of submission to Manchu rule, a policy that was deeply humiliating to many Han Chinese.",
+      "The Qing Dynasty would go on to be the last imperial dynasty of China, ruling until 1912 and presiding over both the height of Chinese imperial power and its eventual decline in the face of European imperialism."
+    ]
+  },
+  {
+    id: 'aurangzeb',
+    year: 1679,
+    era: 2,
+    label: 'Aurangzeb Reverses Mughal Religious Tolerance',
+    geo: ['asia'],
+    facts: [
+      "Aurangzeb, the sixth Mughal emperor, reversed the policy of religious tolerance established by his predecessor Akbar, reimposing the jizya tax on non-Muslims and actively persecuting Hindu, Sikh, and other religious communities.",
+      "Aurangzeb's reign represented a fundamental shift in Mughal governance — where Akbar had used pluralism and inclusion to hold a diverse empire together, Aurangzeb used religious orthodoxy and coercion, generating widespread resentment and resistance.",
+      "Aurangzeb's policies fueled a series of revolts — most notably the rise of the Hindu Maratha Empire under Shivaji — that stretched Mughal military resources to the breaking point and began the long decline of the empire.",
+      "Aurangzeb's reign is a powerful case study in how religious intolerance can destabilize even the most powerful empires — and a direct contrast to the Mughal golden age under Akbar just decades earlier."
+    ]
+  },
+  {
+    id: 'newton',
+    year: 1687,
+    era: 2,
+    label: 'Isaac Newton Publishes the Principia',
+    geo: ['europe'],
+    facts: [
+      "In 1687, Isaac Newton published the Principia Mathematica, laying out his three laws of motion and the law of universal gravitation — arguably the most important scientific publication in human history. Newton also developed calculus as a mathematical tool to support his physics, though his contemporary Leibniz independently developed calculus at roughly the same time, sparking one of history's great intellectual rivalries.",
+      "Newton's law of universal gravitation demonstrated that the same force governing the fall of an apple on Earth also governed the motion of planets around the Sun, unifying terrestrial and celestial mechanics for the first time.",
+      "The Principia represented the culmination of the Scientific Revolution — building directly on the work of Copernicus, Galileo, and Kepler to produce a comprehensive mathematical framework for understanding the physical world.",
+      "Newton's work had profound philosophical implications beyond science — if the universe operated according to predictable mathematical laws, it suggested that human reason alone could unlock the secrets of nature, an idea that directly fueled the Enlightenment thinking that followed.",
+      "Newton is often considered the greatest scientist in history, and his framework dominated physics for over two centuries until Einstein's theory of relativity expanded and revised our understanding of the universe."
+    ]
+  },
+  {
+    id: 'voltaire',
+    year: 1733,
+    era: 2,
+    label: 'Voltaire Publishes Letters Concerning the English Nation',
+    geo: ['europe'],
+    facts: [
+      "In 1733, French Enlightenment philosopher Voltaire published Letters Concerning the English Nation, using England as a model to criticize French society, the Catholic Church, and absolute monarchy — making it one of the founding texts of the Enlightenment.",
+      "Voltaire admired England's relative religious tolerance, constitutional monarchy, and the intellectual freedom that had produced thinkers like Newton and Locke, holding it up as a contrast to the rigidity and intolerance of French institutions.",
+      "Voltaire was one of the sharpest and most influential critics of religious intolerance and superstition in European history, arguing that reason and free inquiry should replace dogma and tradition as the basis for human society.",
+      "The book was banned in France and publicly burned, illustrating the very intolerance Voltaire was critiquing — and making him a symbol of the struggle for freedom of thought and expression.",
+      "Voltaire's work helped set the intellectual agenda for the broader Enlightenment, influencing the political revolutions in America and France later in the 18th century that would transform the Atlantic world."
+    ]
+  },
+  {
+    id: 'diderot',
+    year: 1751,
+    era: 2,
+    label: "Diderot's Encyclopedia Published",
+    geo: ['europe'],
+    facts: [
+      "In 1751, French philosopher Denis Diderot published the first volume of the Encyclopédie, an ambitious project to compile and systematize all human knowledge — a direct expression of the Enlightenment belief that reason and education could transform society. Diderot's commitment to the project was so threatening to established authority that he was imprisoned for three months in 1749, before the first volume even appeared.",
+      "The Encyclopédie was explicitly subversive — it promoted scientific reasoning, religious skepticism, and political reform, and was banned multiple times by French authorities and the Catholic Church who recognized it as a threat to the established order.",
+      "The project took over twenty years to complete, eventually comprising 28 volumes and contributions from over 150 writers including Voltaire and Rousseau, making it one of the greatest collaborative intellectual projects in history.",
+      "The Encyclopédie democratized knowledge — by making information about science, technology, philosophy, and the arts widely available in print, it challenged the idea that knowledge should be controlled by the Church or the state.",
+      "The publication of the Encyclopédie is considered one of the defining moments of the Enlightenment, helping to create the intellectual climate that would produce the American and French Revolutions later in the 18th century."
+    ]
+  },
+
+  // ─── ERA 3: 1750–Present ────────────────
+
+  {
+    id: 'steam-engine',
+    year: 1776,
+    era: 3,
+    label: 'James Watt / Steam Engine Commercially Available',
+    geo: ['europe'],
+    facts: [
+      "In 1776, James Watt's improved steam engine became commercially available, providing a reliable and powerful new energy source that was not dependent on wind, water, or animal labor — making it the foundational technology of the Industrial Revolution.",
+      "The steam engine transformed manufacturing by powering factories, allowing production to move away from cottage industries and into centralized urban factories where goods could be made faster and cheaper than ever before.",
+      "Steam power revolutionized transportation through the development of steam-powered locomotives and ships, dramatically shrinking travel times, connecting distant markets, and enabling the rapid movement of raw materials and finished goods across continents and oceans.",
+      "The Industrial Revolution that the steam engine helped launch began in Britain and spread to Europe and North America, fundamentally reshaping economies from agricultural to industrial and creating the modern working class.",
+      "Industrialization produced enormous wealth but also enormous suffering — factory workers, including children, faced brutal conditions, long hours, and dangerous environments, laying the groundwork for labor movements and socialist thought that would define the 19th and 20th centuries."
+    ]
+  },
+  {
+    id: 'french-revolution',
+    year: 1789, yearEnd: 1815,
+    era: 3,
+    label: 'French Revolution',
+    geo: ['europe'],
+    facts: [
+      "The French Revolution began in 1789 when financial crisis and social inequality pushed the long-neglected Third Estate to break from the Estates General, form the National Assembly, and swear the Tennis Court Oath — vowing to write a new constitution regardless of royal opposition.",
+      "The Storming of the Bastille on July 14, 1789 became the defining symbol of the Revolution — a popular uprising against royal tyranny that signaled the old order was collapsing.",
+      "The Declaration of the Rights of Man and Citizen, adopted in 1789, proclaimed liberty, equality, and popular sovereignty as universal principles — directly inspired by Enlightenment thinkers like Voltaire and Rousseau and influencing democratic movements worldwide.",
+      "The Revolution descended into the Reign of Terror under Robespierre, during which thousands — including King Louis XVI and Marie Antoinette — were executed by guillotine in the name of revolutionary purity, before Robespierre himself was executed in 1794.",
+      "The chaos of the Revolution created the conditions for Napoleon Bonaparte's rise to power — he crowned himself Emperor in December 1804, spreading revolutionary ideals across Europe through conquest before his final defeat in 1815."
+    ]
+  },
+  {
+    id: 'haitian-revolution',
+    year: 1791, yearEnd: 1804,
+    era: 3,
+    label: 'Haitian Revolution',
+    geo: ['americas'],
+    facts: [
+      "The Haitian Revolution began in 1791 when enslaved Africans in the French colony of Saint-Domingue launched a massive uprising, inspired by the ideals of the French Revolution — making it the only successful slave revolt in history to result in the founding of a new nation.",
+      "The revolution was led by figures including Toussaint Louverture, a formerly enslaved man who became a brilliant military commander, uniting enslaved people, free Black citizens, and mixed-race populations against French colonial rule.",
+      "Haiti's independence in 1804 sent shockwaves through the slaveholding world — terrifying plantation owners across the Americas and demonstrating that enslaved people could successfully overthrow their oppressors, making it one of the most radical political events of the modern era.",
+      "The new Haitian state was forced to pay an enormous indemnity to France in exchange for diplomatic recognition — a debt that crippled the Haitian economy for generations and illustrates how the international community worked to punish and isolate the world's first Black republic.",
+      "The Haitian Revolution is a direct product of the contradictions of the Enlightenment — the same ideals of liberty and equality that inspired the American and French Revolutions were used by enslaved people to demand their own freedom, exposing the hypocrisy of those revolutions' limited application of those ideals."
+    ]
+  },
+  {
+    id: 'communist-manifesto',
+    year: 1848,
+    era: 3,
+    label: 'Marx and Engels Publish the Communist Manifesto',
+    geo: ['europe'],
+    facts: [
+      "In 1848, Karl Marx and Friedrich Engels published the Communist Manifesto, a short but explosive pamphlet arguing that all of human history is the story of class struggle — most recently between the industrial working class (the proletariat) and the capitalist owning class (the bourgeoisie).",
+      "Marx and Engels argued that capitalism was inherently exploitative — workers created value through their labor but were paid only a fraction of what they produced, with the surplus going to capitalists as profit, a concept Marx called surplus value.",
+      "The Manifesto called for workers of the world to unite and overthrow the capitalist system, replacing private ownership of the means of production with collective ownership — the core idea of communism.",
+      "The Communist Manifesto was written in direct response to the Industrial Revolution and the miserable conditions faced by the urban working class, making it one of the most consequential political documents in history.",
+      "Marx and Engels' ideas would go on to inspire revolutions across the globe in the 19th and 20th centuries — most notably the Russian Revolution of 1917 — making Marxism one of the most influential and contested ideologies in modern world history."
+    ]
+  },
+  {
+    id: 'opium-wars',
+    year: 1839, yearEnd: 1860,
+    era: 3,
+    label: 'Opium Wars',
+    geo: ['asia', 'europe'],
+    facts: [
+      "The Opium Wars were two conflicts between Britain and China triggered by Britain's illegal trade of opium — grown in British-controlled India — into China, which the Qing Dynasty attempted to suppress after the drug had created a massive addiction crisis among the Chinese population.",
+      "Britain went to war to protect its profitable opium trade, using its vastly superior naval and military technology to defeat China decisively — exposing the weakness of the once-powerful Qing Dynasty and shocking the Chinese ruling class.",
+      "The wars resulted in a series of humiliating 'Unequal Treaties' that forced China to open ports to foreign trade, cede Hong Kong to Britain, and grant foreign citizens immunity from Chinese law — beginning a period Chinese historians call the 'Century of Humiliation.'",
+      "The Opium Wars are a defining example of 19th century imperialism — a powerful industrial nation using military force to pry open the markets of a weaker nation for economic exploitation, regardless of the human cost.",
+      "The humiliation of the Opium Wars destabilized the Qing Dynasty internally, contributing to massive rebellions including the Taiping Rebellion and ultimately accelerating the dynasty's eventual collapse in 1912."
+    ]
+  },
+  {
+    id: 'japan-opening',
+    year: 1853, yearEnd: 1854,
+    era: 3,
+    label: 'Forced Opening of Japan by the US',
+    geo: ['asia', 'europe'],
+    facts: [
+      "In 1853, American Commodore Matthew Perry arrived in Tokyo Bay with a fleet of heavily armed steam-powered warships — known to the Japanese as the 'Black Ships' — demanding that Japan open its ports to American trade after more than two centuries of deliberate isolation.",
+      "Japan's Tokugawa Shogunate, recognizing its military inferiority, signed the Convention of Kanagawa in 1854, opening two ports to American ships and beginning the end of Japan's isolationist policy known as sakoku.",
+      "Like China's experience with the Opium Wars, the forced opening of Japan exposed the vulnerability of Asian nations to Western industrial and military power — but Japan's response would prove dramatically different from China's.",
+      "The humiliation of the unequal treaties and the exposure to Western power directly triggered the Meiji Restoration of 1868, in which Japanese reformers overthrew the Shogunate and launched a rapid program of industrialization and modernization.",
+      "Japan's transformation after Perry's arrival is one of the most remarkable stories in modern history — within fifty years of being forced open at gunpoint, Japan had industrialized sufficiently to defeat Russia in the Russo-Japanese War of 1905, becoming the first Asian nation to defeat a European power in a modern war."
+    ]
+  },
+  {
+    id: 'sepoy-rebellion',
+    year: 1857,
+    era: 3,
+    label: 'Sepoy Rebellion',
+    geo: ['asia', 'europe'],
+    facts: [
+      "The Sepoy Rebellion of 1857 was a massive uprising against British rule in India, sparked when Indian soldiers (sepoys) in the British East India Company's army refused to use new rifle cartridges rumored to be greased with pig and cow fat — violating the religious beliefs of both Muslim and Hindu soldiers.",
+      "The rebellion quickly spread beyond the military, drawing in Indian princes, peasants, and civilians who resented British economic exploitation, cultural interference, and the systematic dismantling of traditional Indian society.",
+      "The British suppressed the rebellion with overwhelming force and considerable brutality, but the uprising shook the foundations of British rule in India and forced a fundamental reorganization of how Britain governed the subcontinent.",
+      "In the aftermath, the British Crown dissolved the East India Company and assumed direct control of India, beginning the period known as the British Raj — transforming India from a corporate colony into an official part of the British Empire.",
+      "The Sepoy Rebellion is considered by many Indian historians as the first war of Indian independence, and it planted the seeds of nationalist consciousness that would eventually grow into the independence movement of the 20th century."
+    ]
+  },
+  {
+    id: 'berlin-conference',
+    year: 1884, yearEnd: 1885,
+    era: 3,
+    label: 'Berlin Conference',
+    geo: ['europe', 'africa'],
+    facts: [
+      "The Berlin Conference of 1884–1885 was convened by German Chancellor Otto von Bismarck as a meeting of fourteen European nations to regulate the colonization and division of Africa — notably, not a single African ruler or representative was invited or consulted.",
+      "European powers carved up the African continent into colonial territories based on their own strategic and economic interests, drawing borders that cut across existing ethnic, linguistic, and cultural boundaries — borders whose consequences continue to shape Africa today.",
+      "The Conference established the principle of 'effective occupation' — meaning European nations could only claim African territory if they actually controlled it, triggering a rapid scramble in which European powers raced to physically occupy as much of Africa as possible.",
+      "By 1914, virtually the entire African continent had been colonized by European powers, with only Ethiopia and Liberia remaining independent — representing one of the most rapid and complete examples of imperial conquest in world history.",
+      "The Berlin Conference is a defining moment in the history of imperialism — it treated an entire continent and its hundreds of millions of people as empty territory to be divided among powerful outsiders, with devastating long-term consequences for African political, economic, and cultural development."
+    ]
+  },
+  {
+    id: 'wwi',
+    year: 1914,
+    era: 3,
+    label: 'Assassination of Archduke Franz Ferdinand',
+    geo: ['europe'],
+    facts: [
+      "On June 28, 1914, Archduke Franz Ferdinand, heir to the Austro-Hungarian throne, was assassinated in Sarajevo by Gavrilo Princip, a Bosnian Serb nationalist — setting off a chain of events that would drag the major European powers into the most destructive war the world had yet seen.",
+      "The assassination triggered a rapid escalation through Europe's complex system of alliances — Austria-Hungary blamed Serbia, Russia mobilized to defend Serbia, Germany backed Austria-Hungary, and France and Britain were pulled in — turning a regional crisis into a world war within weeks.",
+      "World War I introduced industrialized warfare on an unprecedented scale — machine guns, poison gas, tanks, and aerial bombardment produced casualties that shocked even military commanders, with millions dying in the trenches of the Western Front.",
+      "The war shattered the optimistic belief in European progress and civilization that had defined the 19th century — after the horrors of the trenches, it became impossible to argue that Western industrial advancement was simply a story of human improvement.",
+      "World War I set the stage for virtually every major conflict and political upheaval of the 20th century — including the Russian Revolution, the rise of fascism, and World War II — making the assassination in Sarajevo one of the most consequential single moments in modern history."
+    ]
+  },
+  {
+    id: 'october-revolution',
+    year: 1917,
+    era: 3,
+    label: 'October Revolution',
+    geo: ['europe'],
+    facts: [
+      "In October 1917, Vladimir Lenin and the Bolshevik Party seized control of the Russian government in a revolutionary coup, overthrowing the provisional government that had replaced Tsar Nicholas II earlier that year and establishing the world's first communist state.",
+      "The revolution was driven by Russia's catastrophic experience in World War I, widespread poverty and inequality, and the failure of the Tsar's government to address the desperate conditions of the Russian peasantry and urban working class.",
+      "Lenin's Bolsheviks were directly inspired by Marx and Engels' Communist Manifesto, and their seizure of power represented the first real-world attempt to put Marxist theory into practice — nationalizing industry, redistributing land, and dismantling the old class structure.",
+      "The October Revolution triggered a brutal civil war between the Bolshevik Red Army and the anti-communist White Army, which lasted until 1922 and resulted in the establishment of the Soviet Union — a communist state that would become one of the two great superpowers of the 20th century.",
+      "The Russian Revolution sent shockwaves through the capitalist world, terrifying ruling classes across Europe and America and triggering a global ideological struggle between communism and capitalism that would define world politics for the next seven decades."
+    ]
+  },
+  {
+    id: 'versailles',
+    year: 1919,
+    era: 3,
+    label: 'Treaty of Versailles',
+    geo: ['europe'],
+    facts: [
+      "The Treaty of Versailles imposed crushing penalties on Germany — the 'War Guilt Clause' forced Germany to accept sole responsibility for the war, pay enormous reparations, and surrender significant territory. These terms were largely dictated by France and Britain over the objections of Woodrow Wilson, whose Fourteen Points had promised a more moderate and equitable peace based on national self-determination.",
+      "The reparations crippled the German economy, producing hyperinflation, mass unemployment, and deep national humiliation — creating the conditions of desperation and resentment that fueled the rise of fascism and destabilized German democracy in the decades that followed.",
+      "The treaty redrew the map of Europe and the Middle East, dissolving the Austro-Hungarian and Ottoman Empires and creating a series of new nations — many of whose borders were drawn with little regard for ethnic, religious, or cultural realities, planting seeds of future conflict.",
+      "The Treaty of Versailles is widely considered one of history's most consequential diplomatic failures — rather than securing lasting peace, its punishing terms created the political opening that Adolf Hitler would exploit to rise to power and plunge the world into a second catastrophic war."
+    ]
+  },
+  {
+    id: 'poland-invasion',
+    year: 1939,
+    era: 3,
+    label: 'Invasion of Poland',
+    geo: ['europe'],
+    facts: [
+      "On September 1, 1939, Nazi Germany invaded Poland, triggering the start of World War II when Britain and France honored their treaty obligations to Poland and declared war on Germany two days later.",
+      "The invasion showcased Germany's new military doctrine of Blitzkrieg — 'lightning war' — combining fast-moving tanks, motorized infantry, and aerial bombardment to overwhelm Polish defenses before they could organize a coherent response.",
+      "The invasion was made possible in part by the Molotov-Ribbentrop Pact, a secret non-aggression agreement between Nazi Germany and the Soviet Union that included a secret protocol dividing Poland between the two powers — allowing Hitler to invade without fear of a two-front war.",
+      "The Soviet Union invaded Poland from the east on September 17, 1939, completing the partition of the country and revealing the cynical opportunism of Stalin's pact with Hitler.",
+      "The fall of Poland in just weeks demonstrated that the appeasement policies of Britain and France — most notoriously at Munich in 1938 — had catastrophically failed to stop Hitler's expansionist ambitions, and that a full-scale European war was now unavoidable."
+    ]
+  },
+  {
+    id: 'pearl-harbor',
+    year: 1941,
+    era: 3,
+    label: 'Pearl Harbor',
+    geo: ['asia', 'americas'],
+    facts: [
+      "On December 7, 1941, Japan launched a surprise aerial attack on the American naval base at Pearl Harbor, Hawaii, destroying much of the US Pacific Fleet and killing over 2,400 Americans — a date President Franklin Roosevelt declared would 'live in infamy.'",
+      "The attack brought the United States into World War II, transforming what had been a European conflict into a truly global war and ultimately proving to be a catastrophic strategic miscalculation by Japan.",
+      "Japan's attack was driven by its expansionist ambitions in Asia and the Pacific, and by American efforts to limit Japanese aggression — including an oil embargo that threatened to cripple the Japanese war machine — making Pearl Harbor as much a product of imperial competition as a surprise attack.",
+      "The entry of the United States into the war fundamentally shifted the balance of power — American industrial capacity, manpower, and resources would prove decisive in both the Pacific and European theaters.",
+      "Pearl Harbor also triggered one of the most shameful episodes in American history — the forced relocation of approximately 120,000 Japanese Americans into internment camps, driven by racial fear and wartime hysteria rather than any evidence of disloyalty."
+    ]
+  },
+  {
+    id: 'berlin-fall',
+    year: 1945,
+    era: 3,
+    label: 'Fall of Berlin',
+    geo: ['europe'],
+    facts: [
+      "The Fall of Berlin in April-May 1945 marked the final defeat of Nazi Germany, as Soviet forces fought their way into the German capital in some of the most intense urban combat of the entire war, resulting in massive casualties on both sides.",
+      "As Soviet forces closed in, Adolf Hitler took his own life in his underground bunker on April 30, 1945, bringing to an end the twelve-year reign of the Third Reich and the most destructive regime in modern history.",
+      "The fall of Berlin completed the liberation of Europe from Nazi occupation and brought an end to the Holocaust — the systematic genocide of six million Jews and millions of others including Roma, disabled people, and political prisoners.",
+      "The division of Berlin — and Germany — between the Western Allies and the Soviet Union in the aftermath of the war became one of the defining symbols of the emerging Cold War, with the city literally split between two competing ideological worlds.",
+      "The defeat of Nazi Germany in 1945 reshaped the entire global order — the old European powers were exhausted and weakened, the United States and Soviet Union emerged as the dominant superpowers, and the stage was set for the Cold War that would define the second half of the 20th century."
+    ]
+  },
+  {
+    id: 'hiroshima',
+    year: 1945,
+    era: 3,
+    label: 'Bombings of Hiroshima and Nagasaki',
+    geo: ['asia', 'americas'],
+    facts: [
+      "On August 6 and 9, 1945, the United States dropped atomic bombs on the Japanese cities of Hiroshima and Nagasaki, killing an estimated 130,000–226,000 people instantly and exposing hundreds of thousands more to the long-term effects of radiation.",
+      "The bombs were the product of the Manhattan Project — a massive secret American scientific and military program that harnessed nuclear fission to create the most destructive weapons in human history, drawing on the work of some of the greatest scientists of the 20th century including J. Robert Oppenheimer.",
+      "Japan surrendered on August 15, 1945, bringing World War II to an end — though historians continue to debate whether the bombings were the primary cause of Japan's surrender or whether the Soviet Union's declaration of war against Japan played an equally decisive role.",
+      "The bombings ushered in the nuclear age — demonstrating that humanity now possessed the capability to destroy entire cities in an instant, fundamentally changing the nature of warfare, international relations, and the existential risks facing human civilization.",
+      "The ethical debate over the bombings remains one of the most contested in modern history — supporters argue they ended the war quickly and avoided a catastrophic land invasion of Japan, while critics argue they constituted a war crime targeting civilian populations."
+    ]
+  }
+
+];
+
+// ─────────────────────────────────────────
+
+const ART = [
+  {
+    id: 'qingming-scroll',
+    title: 'Qingming Scroll',
+    artist: 'Zhang Zeduan',
+    date: 'c. 1085–1145',
+    filename: null,
+    columbiaUrl: 'https://afe.easia.columbia.edu/song-scroll/song.html',
+    context: [
+      "The Qingming Scroll depicts life along the Bian River during the Song Dynasty, showing a thriving commercial city with bustling markets, diverse occupations, and sophisticated infrastructure — a visual encyclopedia of Song urban civilization.",
+      "The scroll illustrates the Song Dynasty's remarkably open market economy, with merchants, artisans, and traders of all kinds operating freely — exactly the kind of freestanding market economy we associate with the Song Golden Age.",
+      "Transportation technology is prominently featured — boats, carts, and bridges reflect the Song mastery of commerce and engineering that made them one of the most economically advanced societies in the medieval world.",
+      "The scroll depicts Buddhists, Taoists, and Confucians all interacting within the same urban space, demonstrating how all three belief systems coexisted and interacted productively in Song China — a society defined by religious pluralism rather than conflict.",
+      "The sheer density and diversity of people in the scroll suggests a sophisticated, literate, urban society — a sharp contrast to the feudal economies of contemporary Europe."
+    ],
+    lookFor: "Notice the variety of economic activity — who is buying, selling, transporting? What does the infrastructure tell you about the sophistication of this society?",
+    connectedEvents: ['song-dynasty', 'yuan-dynasty']
+  },
+  {
+    id: 'catalan-atlas',
+    title: 'Catalan Atlas',
+    artist: 'Abraham Cresques',
+    date: '1375',
+    filename: 'catalan_atlas.jpg',
+    columbiaUrl: null,
+    context: [
+      "The Catalan Atlas is one of the most important medieval maps ever created, produced in 1375 by Jewish cartographer Abraham Cresques in Mallorca — it represents the most sophisticated geographical knowledge of the known world at that time, incorporating information from Marco Polo's travels, Arab geographers, and Silk Road traders.",
+      "The Atlas prominently features Mansa Musa, depicted seated on a throne holding a gold nugget — a direct reflection of his legendary 1325 Hajj and the impact his distribution of gold had on the Mediterranean world's awareness of West African wealth.",
+      "The map illustrates the major trade routes of the era — the Silk Roads, Sand Roads, and Sea Roads — making it a visual representation of the interconnected medieval world that figures like Ibn Battuta and Mansa Musa navigated.",
+      "The Catalan Atlas reflects the limits of European geographical knowledge in the 14th century — Africa and Asia are partially recognizable but distorted, while the Americas are entirely absent, reminding students of how much the world would change after 1492.",
+      "As a Jewish-made map commissioned by the Aragonese crown, the Atlas also reflects the multicultural intellectual environment of medieval Mediterranean society — a world where Jewish, Muslim, and Christian scholars exchanged geographical and scientific knowledge."
+    ],
+    lookFor: "Find Mansa Musa on the map. What does his prominent depiction tell you about how West Africa was perceived in the wider medieval world? What trade routes can you identify?",
+    connectedEvents: ['mansa-musa', 'ibn-battuta', 'columbus']
+  },
+  {
+    id: 'sistine-chapel-art',
+    title: 'Sistine Chapel Ceiling and Altar Wall',
+    artist: 'Michelangelo',
+    date: '1508–1512 (ceiling) and 1536–1541 (altar wall)',
+    filename: 'sistine_chapel.jpg',
+    columbiaUrl: null,
+    context: [
+      "The Sistine Chapel ceiling and altar wall (The Last Judgment) together represent the full arc of Michelangelo's career and the Catholic Church's use of art as a tool of power, inspiration, and theological instruction.",
+      "The ceiling's Creation of Adam — in which God and man reach toward each other — embodies the Renaissance humanist ideal that human beings are worthy of divine attention, reflecting a shift toward human-centered thinking.",
+      "The Last Judgment on the altar wall, painted decades later during the Counter-Reformation, has a noticeably darker and more anxious tone — reflecting how the Protestant Reformation had shaken Catholic confidence and produced a more urgent, fearful religious atmosphere.",
+      "Both works demonstrate the Church's strategy of commissioning monumental art to project power, reinforce doctrine, and awe worshippers — making the Sistine Chapel one of the greatest examples of art as political and religious propaganda.",
+      "The hidden anatomical brain in the Creation of Adam suggests Michelangelo embedded humanist and scientific ideas within ostensibly religious art — a reminder that the Renaissance was a period of productive tension between faith and reason."
+    ],
+    lookFor: "Compare the mood of the ceiling to the altar wall — how does the tone change? What does that shift tell you about what happened to Europe between 1512 and 1541?",
+    connectedEvents: ['sistine-chapel', 'medici', 'luther']
+  },
+  {
+    id: 'mehmed-ii',
+    title: 'Portrait of Mehmed II',
+    artist: 'Gentile Bellini',
+    date: '1480',
+    filename: 'mehmed_II_bellini.jpg',
+    columbiaUrl: null,
+    context: [
+      "This portrait of Ottoman Sultan Mehmed II — painted by a Venetian artist — is itself a symbol of the cultural exchange between the Ottoman Empire and Renaissance Europe, reflecting the complex relationship between two worlds that were simultaneously rivals and trading partners.",
+      "Mehmed II's willingness to commission a portrait from a Christian European artist reflects the Ottoman policy of relative cultural openness and the Sultan's own intellectual curiosity — he was known to collect Western art and literature alongside Islamic scholarship.",
+      "The portrait humanizes Mehmed II in a way that contrasts sharply with European propaganda depicting the Ottomans as barbaric invaders — it shows a refined, intelligent ruler worthy of Renaissance portraiture.",
+      "The painting exists at the intersection of two civilizations — it is simultaneously a Renaissance masterwork and an Ottoman imperial statement, making it a perfect artifact for understanding the interconnected world of the 15th century."
+    ],
+    lookFor: "What details suggest power and refinement? Why might it matter that this portrait was painted by a Christian European artist working for a Muslim sultan?",
+    connectedEvents: ['constantinople']
+  },
+  {
+    id: 'aztec-sun-stone',
+    title: 'Stone of the 5th Sun (Aztec Sun Stone)',
+    artist: 'Unknown Aztec artist',
+    date: 'c. 1427–1479',
+    filename: 'aztec_sun_stone.jpg',
+    columbiaUrl: null,
+    context: [
+      "The Aztec Sun Stone — often incorrectly called a calendar — is a massive carved basalt disc that encodes Aztec cosmology, depicting the five eras of the world and the belief that the current world (the fifth sun) was destined to end in catastrophic earthquakes.",
+      "At its center is the face of Tonatiuh, the sun god, whose tongue takes the form of a sacrificial knife — a direct reference to the Aztec belief that human sacrifice was necessary to feed the sun and prevent the destruction of the world.",
+      "The stone is a testament to the sophistication of Aztec civilization — its precise astronomical and mathematical knowledge, its complex religious cosmology, and its mastery of monumental stone carving.",
+      "The stone also reflects the deeply militaristic nature of Aztec society — the need for constant warfare to capture sacrificial victims was embedded in their cosmological worldview, which helps explain both the empire's expansion and the resentment of subject peoples that Cortés would later exploit.",
+      "When the Spanish destroyed Tenochtitlan, they buried the Sun Stone — it was rediscovered in 1790 under the main plaza of Mexico City, a powerful symbol of the Indigenous civilization that colonialism sought to erase."
+    ],
+    lookFor: "Find the face at the center — what is its expression? What does the sacrificial knife tongue tell you about the relationship between religion and power in Aztec society?",
+    connectedEvents: ['dona-marina', 'columbus']
+  },
+  {
+    id: 'vermeer-balance',
+    title: 'Woman Holding a Balance',
+    artist: 'Johannes Vermeer',
+    date: 'c. 1664',
+    filename: 'vermeer_woman_balance.jpg',
+    columbiaUrl: null,
+    context: [
+      "Vermeer's Woman Holding a Balance depicts a wealthy Dutch woman carefully weighing something on a small balance scale, set against a painting of the Last Judgment on the wall behind her — the juxtaposition of earthly wealth and divine judgment is deliberate, inviting the viewer to consider the moral weight of prosperity. This tension is the essence of what historians call the 'Embarrassment of Riches' — the deep angst felt by Dutch Golden Age society as its rigidly moral Protestant work ethic collided with the enormous and sometimes dubiously obtained wealth flowing in from global trade.",
+      "The woman's fine clothing and the pearls on the table are products of VOC-controlled Indian Ocean trade — connecting this intimate domestic scene to the vast and often brutal commercial networks that made Dutch prosperity possible.",
+      "The balance scale reflects the precision and mercantile culture that defined Dutch society — but balanced against the Last Judgment on the wall, it asks a deeper question: how will this wealth be weighed when it truly matters?"
+    ],
+    lookFor: "What is on the table? What is on the wall behind her? Why do you think Vermeer placed these two elements — earthly wealth and divine judgment — in the same frame? What does the painting suggest about the emotional experience of living in the Dutch Golden Age?",
+    connectedEvents: ['voc']
+  },
+  {
+    id: 'rubens-judith',
+    title: 'Judith with the Head of Holofernes',
+    artist: 'Peter Paul Rubens',
+    date: 'c. 1616',
+    filename: 'rubens_judith.jpg',
+    columbiaUrl: null,
+    context: [
+      "Rubens's Judith depicts the biblical heroine who saved her people by seducing and beheading the Assyrian general Holofernes — a subject that was enormously popular during the Counter-Reformation as a symbol of virtue triumphing over tyranny.",
+      "The painting's dramatic use of light and shadow (chiaroscuro), its dynamic composition, and its intense emotional energy are hallmarks of the Baroque style — an artistic movement directly sponsored by the Catholic Church as part of the Counter-Reformation to inspire awe and emotional engagement with faith.",
+      "Rubens was the most celebrated painter of the Catholic world in the early 17th century, and his work represents the Church's deliberate use of art as a weapon in the ideological struggle against Protestantism — Baroque art was designed to move, overwhelm, and reconvert.",
+      "The powerful, confident depiction of Judith as an active agent of divine justice reflects a broader Counter-Reformation theme — that God works through human beings who act with courage and faith.",
+      "Rubens's international career — working for kings, popes, and aristocrats across Europe — reflects the cosmopolitan world of 17th century European court culture, connected by patronage networks, diplomatic relationships, and shared Catholic identity."
+    ],
+    lookFor: "Notice how your eye moves through the painting — where does it start, where does it go? How does Rubens use light to direct your attention and create drama?",
+    connectedEvents: ['luther', 'sistine-chapel']
+  },
+  {
+    id: 'bichitr-jahangir',
+    title: 'Jahangir Preferring a Sufi Shaikh to Kings',
+    artist: 'Bichitr',
+    date: 'c. 1615–1618',
+    filename: 'bichitr_jahangir.jpg',
+    columbiaUrl: null,
+    context: [
+      "This Mughal miniature painting depicts Emperor Jahangir (son of Akbar) seated on an hourglass throne, turning away from powerful kings — including the Ottoman Sultan and King James I of England — to offer a book to a Sufi holy man, asserting the primacy of spiritual wisdom over worldly power.",
+      "The hourglass throne rests on a globe, and the angels in the corners write inscriptions praising Jahangir — the painting is an extraordinary assertion of imperial ego and divine favor, presenting the Mughal emperor as the center of the world.",
+      "The presence of the Ottoman Sultan, a European king, and an angel in the same composition reflects the Mughal court's sophisticated awareness of the wider world and its confidence in its own supremacy within it.",
+      "The Sufi holy man receiving the book reflects the continuation of Akbar's tradition of spiritual openness — the Mughals maintained connections with Sufi Islam, which emphasized personal spiritual experience over rigid orthodoxy.",
+      "The painting is a masterpiece of Mughal miniature art, blending Persian, Indian, and European artistic traditions — a visual embodiment of the cultural synthesis that defined Mughal civilization at its height."
+    ],
+    lookFor: "Who is being turned away, and who is being honored? What does that hierarchy tell you about how Jahangir wanted to be seen? Find the European king — what does his presence in a Mughal painting suggest?",
+    connectedEvents: ['akbar', 'aurangzeb']
+  },
+  {
+    id: 'rembrandt-anatomy',
+    title: 'The Anatomy Lesson of Dr. Nicolaes Tulp',
+    artist: 'Rembrandt van Rijn',
+    date: '1632',
+    filename: 'rembrandt_anatomy_lesson.jpg',
+    columbiaUrl: null,
+    context: [
+      "Rembrandt's Anatomy Lesson depicts a public dissection performed by Dr. Nicolaes Tulp before a group of surgeons in Amsterdam — it is one of the most powerful visual statements of the Scientific Revolution's core principle: that knowledge comes from direct observation of the natural world, not from ancient texts.",
+      "The painting celebrates empiricism — the idea that truth is discovered through evidence and experiment. The surgeons lean in, watching carefully, just as Galileo looked through his telescope and Copernicus studied the night sky.",
+      "Public anatomical dissections were major civic events in 17th century Amsterdam, reflecting a broader cultural shift in which the human body became an object of scientific inquiry rather than solely a vessel of religious meaning.",
+      "The painting is also a product of Dutch Golden Age culture — it was commissioned by the Amsterdam Surgeons' Guild, reflecting the rise of professional scientific organizations and the growing social prestige of empirical knowledge."
+    ],
+    lookFor: "Where are the surgeons looking? What does the open book in the corner represent — and why might it be significant that no one is looking at it?",
+    connectedEvents: ['galileo', 'newton', 'copernicus']
+  },
+  {
+    id: 'david-marat',
+    title: 'Death of Marat',
+    artist: 'Jacques-Louis David',
+    date: '1793',
+    filename: 'david_death_of_marat.jpg',
+    columbiaUrl: null,
+    context: [
+      "David's Death of Marat depicts the revolutionary journalist Jean-Paul Marat murdered in his medicinal bath by Charlotte Corday in 1793 — painted just months after the event, it is one of history's most powerful examples of art as revolutionary propaganda.",
+      "David deliberately posed Marat in a manner reminiscent of Christ taken down from the cross — transforming a political assassination into a martyrdom and Marat into a secular saint of the Revolution, illustrating how the French Revolution created its own quasi-religious iconography.",
+      "The painting was commissioned by the National Convention as a tool to inspire revolutionary fervor — a direct example of the state using art to shape public emotion and political loyalty.",
+      "The letter in Marat's hand is from Corday, who had gained access by claiming to have information about counter-revolutionaries — a detail David included to remind viewers of the threats facing the Revolution and the price of dedication to its cause.",
+      "The stark simplicity of the composition — the dark background, the plain wooden box, the mundane bath — gives the painting its power, stripping away all luxury to present Marat as a man of the people who died in service to them."
+    ],
+    lookFor: "Compare this to traditional religious paintings of martyrdom — what visual elements does David borrow? Why would a revolutionary government want its citizens to think of Marat as a martyr?",
+    connectedEvents: ['french-revolution']
+  },
+  {
+    id: 'manet-folies',
+    title: 'A Bar at the Folies-Bergère',
+    artist: 'Édouard Manet',
+    date: '1882',
+    filename: 'manet_folies_bergere.jpg',
+    columbiaUrl: null,
+    context: [
+      "Manet's final masterpiece depicts a barmaid at a famous Parisian entertainment venue, her reflection visible in the mirror behind her — it is one of the defining images of modernity, capturing the alienation, spectacle, and social complexity of industrial urban life.",
+      "The painting reflects the transformation of Paris under industrialization — the Folies-Bergère was a product of the new leisure economy, where a growing urban middle and working class sought entertainment, and where class boundaries were simultaneously displayed and blurred.",
+      "The barmaid's detached, melancholy expression amid the crowd of wealthy patrons captures what sociologists call the alienation of modern labor — she is present but disconnected, a worker performing a role in a world of consumption she cannot fully participate in.",
+      "The bottles on the bar — champagne, liqueurs, beer — are products of global trade and industrial production, connecting this Parisian scene to the broader networks of 19th century capitalism that the Industrial Revolution had created."
+    ],
+    lookFor: "Look at the barmaid's face — what is her expression? Now look at her reflection in the mirror — does it match? What might Manet be saying about identity, labor, and modern life?",
+    connectedEvents: ['steam-engine', 'communist-manifesto']
+  },
+  {
+    id: 'chikanobu-plum',
+    title: 'Pictures of Songs and Plum Blossom',
+    artist: 'Toyohara Chikanobu',
+    date: '1894',
+    filename: 'chikanobu_plum_blossom.jpg',
+    columbiaUrl: null,
+    context: [
+      "Chikanobu's woodblock print depicts elegantly dressed Japanese women in a traditional setting — but the style, the clothing details, and the very medium of mass-produced woodblock printing reflect the complex negotiation between tradition and modernity that defined Meiji Japan.",
+      "The print was produced in 1894, just decades after Commodore Perry's Black Ships forced Japan open — and the same year Japan went to war with China in the First Sino-Japanese War, signaling its emergence as a modern military power. The domestic tranquility of the scene stands in sharp contrast to Japan's aggressive modernization on the world stage.",
+      "Look closely at the women's clothing — they appear to be wearing modern Western-style outer garments, but traditional Japanese kimonos can be seen layered underneath, a visual metaphor for Meiji Japan's strategy of adopting Western modernity on the surface while preserving Japanese cultural identity beneath.",
+      "The plum blossom — a symbol of resilience and renewal in Japanese culture, blooming in winter before any other flower — takes on additional meaning in the Meiji context, suggesting Japan's ability to renew itself while enduring the pressures of Western imperialism.",
+      "The mass-produced woodblock print format itself reflects the democratization of art and culture in Meiji Japan — these were not paintings for elites but affordable images for ordinary people, reflecting the broader social changes industrialization and modernization were producing."
+    ],
+    lookFor: "What details feel traditionally Japanese? Are there any hints of Western influence? What might the plum blossom symbolize about Japan's experience of modernization?",
+    connectedEvents: ['japan-opening']
+  }
+];
+
+</script>
+
+
+<!-- ═══════════════════════════════════════════
+     APP LOGIC
+═══════════════════════════════════════════ -->
+<script>
+
+  // ── Tab switching ────────────────────────
+  function showTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    document.querySelector('.content').scrollTop = 0;
+  }
+
+  // ── Timeline helpers ─────────────────────
+  function geoClass(geo) {
+    if (geo.length === 1) return geo[0];
+    return [...geo].sort().join('-');
+  }
+
+  function yearDisplay(event) {
+    return event.yearEnd ? `${event.year}–${event.yearEnd}` : `${event.year}`;
+  }
+
+  // ── Build timeline ───────────────────────
+  function buildTimeline() {
+    const container = document.getElementById('tab-timeline');
+    container.innerHTML = '';
+
+    // Legend
+    const legend = document.createElement('div');
+    legend.className = 'geo-legend';
+    legend.innerHTML = `
+      <div class="geo-legend-item"><div class="geo-legend-dot" style="background:var(--geo-asia)"></div>Asia</div>
+      <div class="geo-legend-item"><div class="geo-legend-dot" style="background:var(--geo-mideast)"></div>Middle East</div>
+      <div class="geo-legend-item"><div class="geo-legend-dot" style="background:var(--geo-africa)"></div>Africa</div>
+      <div class="geo-legend-item"><div class="geo-legend-dot" style="background:var(--geo-europe)"></div>Europe</div>
+      <div class="geo-legend-item"><div class="geo-legend-dot" style="background:var(--geo-americas)"></div>Americas</div>
+    `;
+    container.appendChild(legend);
+
+    const eras = [
+      { num: 1, label: 'Era 1', title: '1200 – 1450' },
+      { num: 2, label: 'Era 2', title: '1450 – 1750' },
+      { num: 3, label: 'Era 3', title: '1750 – Present' },
+    ];
+
+    eras.forEach(era => {
+      const events = EVENTS.filter(e => e.era === era.num);
+
+      // Era header
+      const header = document.createElement('div');
+      header.className = 'era-header';
+      header.innerHTML = `
+        <div class="era-label">${era.label}</div>
+        <div class="era-title">${era.title}</div>
+      `;
+      container.appendChild(header);
+
+      // Timeline section
+      const section = document.createElement('div');
+      section.className = 'timeline-section';
+
+      events.forEach(event => {
+        const gc = geoClass(event.geo);
+
+        const item = document.createElement('div');
+        item.className = 'event-item';
+
+        // Dot
+        const dot = document.createElement('div');
+        dot.className = `event-dot dot-${gc}`;
+        item.appendChild(dot);
+
+        // Card
+        const card = document.createElement('div');
+        card.className = 'event-card';
+        card.setAttribute('data-id', event.id);
+
+        // Color bar
+        const bar = document.createElement('div');
+        bar.className = `event-card-bar bar-${gc}`;
+        card.appendChild(bar);
+
+        // Front
+        const front = document.createElement('div');
+        front.className = 'event-card-front';
+        front.innerHTML = `
+          <div class="event-card-label">${event.label} <span class="event-card-chevron">▼</span></div>
+          <div class="event-card-year">${yearDisplay(event)}</div>
+        `;
+        card.appendChild(front);
+
+        // Tap hint
+        const hint = document.createElement('div');
+        hint.className = 'event-card-tap-hint';
+        hint.textContent = 'Tap to see facts';
+        card.appendChild(hint);
+
+        // Facts
+        const back = document.createElement('div');
+        back.className = 'event-card-back';
+        const ol = document.createElement('ol');
+        event.facts.forEach(fact => {
+          const li = document.createElement('li');
+          li.textContent = fact;
+          ol.appendChild(li);
+        });
+        back.appendChild(ol);
+        card.appendChild(back);
+
+        // Toggle
+        card.addEventListener('click', () => {
+          const isOpen = card.classList.contains('expanded');
+          card.classList.toggle('expanded', !isOpen);
+          back.classList.toggle('open', !isOpen);
+          hint.textContent = isOpen ? 'Tap to see facts' : 'Tap to hide facts';
+        });
+
+        item.appendChild(card);
+        section.appendChild(item);
+      });
+
+      container.appendChild(section);
+    });
+  }
+
+  // ── Init ─────────────────────────────────
+  document.addEventListener('DOMContentLoaded', buildTimeline);
+
+</script>
+
+
+<!-- ═══════════════════════════════════════════
+     TAB 2: GAMES LOGIC
+═══════════════════════════════════════════ -->
+<script>
+
+  // ── Game state ───────────────────────────
+  const gameState = {
+    'place-it':    { streak: 0, best: 0, correct: 0, total: 0 },
+    'which-first': { streak: 0, best: 0, correct: 0, total: 0 },
+    'sort-it':     { streak: 0, best: 0, correct: 0, total: 0 }
+  };
+
+  // ── Game selector ────────────────────────
+  function selectGame(name, btn) {
+    document.querySelectorAll('.game-select-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('game-' + name).classList.add('active');
+  }
+
+  // ── Score helpers ────────────────────────
+  function updateScore(game, correct) {
+    const s = gameState[game];
+    s.total++;
+    if (correct) {
+      s.correct++;
+      s.streak++;
+      if (s.streak > s.best) s.best = s.streak;
+    } else {
+      s.streak = 0;
+    }
+    const prefix = game;
+    document.getElementById(prefix + '-streak').textContent  = s.streak;
+    document.getElementById(prefix + '-best').textContent    = s.best;
+    document.getElementById(prefix + '-correct').textContent = s.correct;
+    document.getElementById(prefix + '-total').textContent   = s.total;
+
+    // Flash streak on correct
+    if (correct) {
+      const el = document.getElementById(prefix + '-streak');
+      el.style.transform = 'scale(1.4)';
+      el.style.transition = 'transform 0.15s';
+      setTimeout(() => { el.style.transform = 'scale(1)'; }, 200);
+    }
+  }
+
+  function showFeedback(game, correct, msg) {
+    const panel = document.getElementById('game-' + game);
+    let fb = panel.querySelector('.game-feedback');
+    if (!fb) return;
+    fb.className = 'game-feedback show ' + (correct ? 'correct' : 'wrong');
+    fb.innerHTML = `<span class="game-feedback-icon">${correct ? '✓' : '✗'}</span> ${msg}`;
+  }
+
+  function showNext(game) {
+    const panel = document.getElementById('game-' + game);
+    const btn = panel.querySelector('.game-next-btn');
+    if (btn) btn.classList.add('show');
+  }
+
+  // ── Shuffle helper ───────────────────────
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function pickRandom(arr, n) {
+    return shuffle(arr).slice(0, n);
+  }
+
+  // ══════════════════════════════════════════
+  // PLACE IT
+  // ══════════════════════════════════════════
+
+  // Era definitions with position buckets
+  const ERA_DEFS = [
+    { num: 1, label: 'Era 1', range: '1200 – 1450',
+      buckets: [
+        { label: 'Early Era 1',  start: 1200, end: 1299 },
+        { label: 'Mid Era 1',    start: 1300, end: 1374 },
+        { label: 'Late Era 1',   start: 1375, end: 1450 },
+      ]
+    },
+    { num: 2, label: 'Era 2', range: '1450 – 1750',
+      buckets: [
+        { label: 'Early Era 2',  start: 1450, end: 1549 },
+        { label: 'Mid Era 2',    start: 1550, end: 1649 },
+        { label: 'Late Era 2',   start: 1650, end: 1750 },
+      ]
+    },
+    { num: 3, label: 'Era 3', range: '1750 – Present',
+      buckets: [
+        { label: 'Early Era 3',  start: 1750, end: 1849 },
+        { label: 'Mid Era 3',    start: 1850, end: 1919 },
+        { label: 'Late Era 3',   start: 1920, end: 1950 },
+      ]
+    },
+  ];
+
+  function getEraForEvent(event) {
+    return ERA_DEFS.find(e => e.num === event.era);
+  }
+
+  function getBucketForEvent(event, era) {
+    return era.buckets.find(b => event.year >= b.start && event.year <= b.end)
+        || era.buckets[era.buckets.length - 1]; // fallback to last bucket
+  }
+
+  let placeItEvent = null;
+  let placeItStage = 1; // 1 = era, 2 = position
+  let placeItEraCorrect = false;
+
+  function buildPlaceIt() {
+    placeItEvent = pickRandom(EVENTS, 1)[0];
+    placeItStage = 1;
+    placeItEraCorrect = false;
+
+    const content = document.getElementById('place-it-content');
+    content.innerHTML = '';
+
+    // Question card
+    const qCard = document.createElement('div');
+    qCard.className = 'game-question-card';
+    qCard.innerHTML = `
+      <div class="game-question-label">Place this event on the timeline</div>
+      <div class="game-event-name">${placeItEvent.label}</div>
+    `;
+    content.appendChild(qCard);
+
+    // Instruction
+    const instr = document.createElement('div');
+    instr.className = 'place-it-instruction';
+    instr.textContent = 'Step 1 of 2 — Which era does this event belong to?';
+    content.appendChild(instr);
+
+    // Era choices
+    const eraChoices = document.createElement('div');
+    eraChoices.className = 'era-choices';
+    ERA_DEFS.forEach(era => {
+      const btn = document.createElement('button');
+      btn.className = 'era-choice-btn';
+      btn.innerHTML = `
+        <div class="era-choice-title">${era.label}</div>
+        <div class="era-choice-range">${era.range}</div>
+      `;
+      btn.addEventListener('click', () => handleEraChoice(era, btn, eraChoices, posStage, instr));
+      eraChoices.appendChild(btn);
+    });
+    content.appendChild(eraChoices);
+
+    // Position stage (hidden until era correct)
+    const posStage = document.createElement('div');
+    posStage.className = 'position-stage';
+    content.appendChild(posStage);
+
+    // Feedback
+    const fb = document.createElement('div');
+    fb.className = 'game-feedback';
+    content.appendChild(fb);
+
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'game-next-btn';
+    nextBtn.textContent = 'Next Event →';
+    nextBtn.addEventListener('click', buildPlaceIt);
+    content.appendChild(nextBtn);
+  }
+
+  function handleEraChoice(era, btn, eraChoices, posStage, instr) {
+    const correctEra = getEraForEvent(placeItEvent);
+    const isCorrect = era.num === correctEra.num;
+
+    // Disable all era buttons
+    eraChoices.querySelectorAll('.era-choice-btn').forEach(b => {
+      b.disabled = true;
+      if (b === btn) b.classList.add(isCorrect ? 'correct-pick' : 'wrong-pick');
+      if (!isCorrect && ERA_DEFS[b.dataset ? parseInt(b.dataset.era) - 1 : 0]) {
+        // highlight correct era
+      }
+    });
+
+    // Highlight correct era button regardless
+    Array.from(eraChoices.querySelectorAll('.era-choice-btn')).forEach((b, i) => {
+      if (ERA_DEFS[i].num === correctEra.num && !isCorrect) {
+        b.classList.add('correct-pick');
+      }
+    });
+
+    if (isCorrect) {
+      instr.textContent = 'Correct era! Step 2 of 2 — Where in Era ' + correctEra.num + ' does it fall?';
+      buildPositionStage(correctEra, posStage);
+      posStage.classList.add('show');
+    } else {
+      // Wrong era — streak resets, show answer, offer next
+      updateScore('place-it', false);
+      const fb = document.querySelector('#game-place-it .game-feedback');
+      fb.className = 'game-feedback show wrong';
+      fb.innerHTML = `<span class="game-feedback-icon">✗</span> Not quite — ${placeItEvent.label} (${placeItEvent.year}) belongs to ${correctEra.label} (${correctEra.range}).`;
+      showNext('place-it');
+    }
+  }
+
+  function buildPositionStage(era, posStage) {
+    const correctBucket = getBucketForEvent(placeItEvent, era);
+
+    const instr2 = document.createElement('div');
+    instr2.className = 'position-instruction';
+    instr2.textContent = 'Where in ' + era.label + ' does it fall?';
+    posStage.appendChild(instr2);
+
+    const choices = document.createElement('div');
+    choices.className = 'position-choices';
+
+    era.buckets.forEach(bucket => {
+      const btn = document.createElement('button');
+      btn.className = 'position-btn';
+      btn.innerHTML = `
+        <span class="pos-label">${bucket.label}</span>
+        <span class="pos-year">${bucket.start}–${bucket.end}</span>
+      `;
+      btn.addEventListener('click', () => handlePositionChoice(bucket, correctBucket, btn, choices));
+      choices.appendChild(btn);
+    });
+
+    posStage.appendChild(choices);
+  }
+
+  function handlePositionChoice(bucket, correctBucket, btn, choices) {
+    const isCorrect = bucket.start === correctBucket.start;
+
+    // Disable all position buttons
+    choices.querySelectorAll('.position-btn').forEach(b => {
+      b.disabled = true;
+      // Highlight correct bucket
+      if (b.querySelector('.pos-label').textContent === correctBucket.label) {
+        b.classList.add('correct-pick');
+      }
+    });
+
+    // Mark chosen button if wrong
+    if (!isCorrect) {
+      btn.classList.add('wrong-pick');
+    }
+
+    updateScore('place-it', isCorrect);
+
+    const fb = document.querySelector('#game-place-it .game-feedback');
+    if (isCorrect) {
+      fb.className = 'game-feedback show correct';
+      fb.innerHTML = `<span class="game-feedback-icon">✓</span> Correct! ${placeItEvent.label} — ${placeItEvent.year}.`;
+    } else {
+      fb.className = 'game-feedback show wrong';
+      fb.innerHTML = `<span class="game-feedback-icon">✗</span> Not quite — ${placeItEvent.label} falls in ${correctBucket.label} (${correctBucket.start}–${correctBucket.end}).`;
+    }
+    showNext('place-it');
+  }
+
+
+  // ══════════════════════════════════════════
+  // WHICH CAME FIRST
+  // ══════════════════════════════════════════
+
+  function buildWhichFirst() {
+    const [eventA, eventB] = pickRandom(EVENTS, 2);
+    // Ensure they're different years (re-pick if same)
+    if (eventA.year === eventB.year) { buildWhichFirst(); return; }
+
+    const earlier = eventA.year < eventB.year ? eventA : eventB;
+    const events = shuffle([eventA, eventB]);
+
+    const content = document.getElementById('which-first-content');
+    content.innerHTML = '';
+
+    // Question card
+    const qCard = document.createElement('div');
+    qCard.className = 'game-question-card';
+    qCard.innerHTML = `
+      <div class="game-question-label">Which came first?</div>
+      <div class="game-event-name" style="font-size:0.85rem;color:var(--text-mid);font-family:'Inter',sans-serif;font-weight:400;">Tap the earlier event</div>
+    `;
+    content.appendChild(qCard);
+
+    // Choices
+    const choices = document.createElement('div');
+    choices.className = 'which-first-choices';
+
+    events.forEach(event => {
+      const btn = document.createElement('button');
+      btn.className = 'which-first-btn';
+      btn.innerHTML = `
+        <div class="wf-label">${event.label}</div>
+        <div class="wf-year">${yearDisplay(event)}</div>
+      `;
+      btn.addEventListener('click', () => {
+        const isCorrect = event.id === earlier.id;
+
+        // Disable + reveal years
+        choices.querySelectorAll('.which-first-btn').forEach(b => {
+          b.disabled = true;
+          b.classList.add('reveal-year');
+        });
+        btn.classList.add(isCorrect ? 'correct-pick' : 'wrong-pick');
+        // Always highlight the correct (earlier) button
+        choices.querySelectorAll('.which-first-btn').forEach(b => {
+          const lbl = b.querySelector('.wf-label').textContent;
+          const isEarlier = events.some(e => e.label === lbl && e.id === earlier.id);
+          if (isEarlier && !isCorrect) b.classList.add('correct-pick');
+        });
+
+        updateScore('which-first', isCorrect);
+
+        const fb = document.querySelector('#game-which-first .game-feedback');
+        if (isCorrect) {
+          fb.className = 'game-feedback show correct';
+          fb.innerHTML = `<span class="game-feedback-icon">✓</span> Correct! ${earlier.label} (${earlier.year}) came first.`;
+        } else {
+          fb.className = 'game-feedback show wrong';
+          fb.innerHTML = `<span class="game-feedback-icon">✗</span> ${earlier.label} (${earlier.year}) came first.`;
+        }
+        showNext('which-first');
+      });
+      choices.appendChild(btn);
+    });
+
+    content.appendChild(choices);
+
+    // Feedback
+    const fb = document.createElement('div');
+    fb.className = 'game-feedback';
+    content.appendChild(fb);
+
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'game-next-btn';
+    nextBtn.textContent = 'Next Pair →';
+    nextBtn.addEventListener('click', buildWhichFirst);
+    content.appendChild(nextBtn);
+  }
+
+
+  // ══════════════════════════════════════════
+  // SORT IT
+  // ══════════════════════════════════════════
+
+  let sortItOrder = [];    // student's chosen order (array of event objects)
+  let sortItEvents = [];   // the shuffled events for this round
+  let sortItSubmitted = false;
+
+  function buildSortIt() {
+    const count = Math.random() < 0.5 ? 4 : 5; // 4 or 5 events
+    sortItEvents = pickRandom(EVENTS, count);
+    sortItOrder = [];
+    sortItSubmitted = false;
+
+    const content = document.getElementById('sort-it-content');
+    content.innerHTML = '';
+
+    // Question card
+    const qCard = document.createElement('div');
+    qCard.className = 'game-question-card';
+    qCard.innerHTML = `
+      <div class="game-question-label">Sort It — Chronological Order</div>
+      <div class="game-event-name" style="font-size:0.85rem;color:var(--text-mid);font-family:'Inter',sans-serif;font-weight:400;">Tap events in order from earliest to latest</div>
+    `;
+    content.appendChild(qCard);
+
+    // Instruction
+    const instr = document.createElement('div');
+    instr.className = 'sort-it-instruction';
+    instr.textContent = `Tap all ${count} events in chronological order (earliest first), then tap Check Order.`;
+    content.appendChild(instr);
+
+    // Sort buttons
+    const choices = document.createElement('div');
+    choices.className = 'sort-choices';
+    choices.id = 'sort-choices';
+
+    sortItEvents.forEach((event, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'sort-btn';
+      btn.dataset.id = event.id;
+      btn.innerHTML = `
+        <div class="sort-btn-rank">—</div>
+        <div class="sort-btn-label">${event.label}</div>
+        <div class="sort-btn-year">${yearDisplay(event)}</div>
+      `;
+      btn.addEventListener('click', () => handleSortTap(event, btn, submitBtn));
+      choices.appendChild(btn);
+    });
+
+    content.appendChild(choices);
+
+    // Submit button
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'sort-submit-btn';
+    submitBtn.textContent = 'Check Order';
+    submitBtn.disabled = true;
+    submitBtn.addEventListener('click', () => checkSortOrder(submitBtn));
+    content.appendChild(submitBtn);
+
+    // Feedback
+    const fb = document.createElement('div');
+    fb.className = 'game-feedback';
+    content.appendChild(fb);
+
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'game-next-btn';
+    nextBtn.textContent = 'Next Round →';
+    nextBtn.addEventListener('click', buildSortIt);
+    content.appendChild(nextBtn);
+  }
+
+  function handleSortTap(event, btn, submitBtn) {
+    if (sortItSubmitted) return;
+
+    // If already selected, deselect and remove from order
+    if (btn.classList.contains('selected')) {
+      sortItOrder = sortItOrder.filter(e => e.id !== event.id);
+      btn.classList.remove('selected');
+      btn.querySelector('.sort-btn-rank').textContent = '—';
+      // Re-number remaining
+      renumberSortOrder();
+    } else {
+      // Add to order
+      sortItOrder.push(event);
+      btn.classList.add('selected');
+      btn.querySelector('.sort-btn-rank').textContent = sortItOrder.length;
+    }
+
+    // Enable submit when all events placed
+    if (sortItOrder.length === sortItEvents.length) {
+      submitBtn.disabled = false;
+      submitBtn.classList.add('ready');
+    } else {
+      submitBtn.disabled = true;
+      submitBtn.classList.remove('ready');
+    }
+  }
+
+  function renumberSortOrder() {
+    const choices = document.getElementById('sort-choices');
+    sortItOrder.forEach((event, i) => {
+      const btn = choices.querySelector(`[data-id="${event.id}"]`);
+      if (btn) btn.querySelector('.sort-btn-rank').textContent = i + 1;
+    });
+    // Clear unselected
+    choices.querySelectorAll('.sort-btn:not(.selected) .sort-btn-rank').forEach(el => {
+      el.textContent = '—';
+    });
+  }
+
+  function checkSortOrder(submitBtn) {
+    sortItSubmitted = true;
+    submitBtn.disabled = true;
+    submitBtn.classList.remove('ready');
+
+    // Correct order = sorted by year ascending
+    const correctOrder = [...sortItEvents].sort((a, b) => a.year - b.year);
+    const isCorrect = sortItOrder.every((e, i) => e.id === correctOrder[i].id);
+
+    // Reveal years and mark correct/wrong
+    const choices = document.getElementById('sort-choices');
+    choices.querySelectorAll('.sort-btn').forEach(btn => {
+      btn.disabled = true;
+      btn.classList.add('reveal-year');
+      const eventId = btn.dataset.id;
+      const studentPos = sortItOrder.findIndex(e => e.id === eventId);
+      const correctPos = correctOrder.findIndex(e => e.id === eventId);
+      if (studentPos === correctPos) {
+        btn.classList.add('correct-pick');
+      } else {
+        btn.classList.add('wrong-pick');
+      }
+      // Show correct position number
+      btn.querySelector('.sort-btn-rank').textContent = correctPos + 1;
+    });
+
+    updateScore('sort-it', isCorrect);
+
+    const fb = document.querySelector('#game-sort-it .game-feedback');
+    if (isCorrect) {
+      fb.className = 'game-feedback show correct';
+      fb.innerHTML = `<span class="game-feedback-icon">✓</span> Perfect order!`;
+    } else {
+      const correctLabels = correctOrder.map((e, i) => `${i+1}. ${e.label} (${e.year})`).join(' → ');
+      fb.className = 'game-feedback show wrong';
+      fb.innerHTML = `<span class="game-feedback-icon">✗</span> Not quite. Correct order: ${correctLabels}`;
+    }
+    showNext('sort-it');
+  }
+
+
+  // ── Init games on DOMContentLoaded ───────
+  document.addEventListener('DOMContentLoaded', () => {
+    buildPlaceIt();
+    buildWhichFirst();
+    buildSortIt();
+  });
+
+</script>
+
+
+<!-- ═══════════════════════════════════════════
+     TAB 3: ART & PRIMARY SOURCES LOGIC
+═══════════════════════════════════════════ -->
+<script>
+
+  function buildArtTab() {
+    const container = document.getElementById('art-tab-content');
+    container.innerHTML = '';
+
+    ART.forEach(art => {
+      const card = document.createElement('div');
+      card.className = 'art-card';
+
+      // ── Image or scroll link ──
+      if (art.columbiaUrl) {
+        // Qingming Scroll — link to Columbia interactive
+        const link = document.createElement('a');
+        link.className = 'art-scroll-link';
+        link.href = art.columbiaUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.innerHTML = `
+          <div class="art-scroll-link-icon">🖼️</div>
+          <div class="art-scroll-link-text">
+            <div class="art-scroll-link-title">View Interactive Scroll</div>
+            <div class="art-scroll-link-sub">Columbia University — Along the River During the Qingming Festival</div>
+          </div>
+          <div class="art-scroll-link-arrow">→</div>
+        `;
+        card.appendChild(link);
+      } else {
+        // Standard image
+        const imgWrap = document.createElement('div');
+        imgWrap.className = 'art-card-img-wrap';
+        const img = document.createElement('img');
+        img.className = 'art-card-img';
+        img.src = art.filename;
+        img.alt = art.title;
+        img.loading = 'lazy';
+        // On error, show placeholder
+        img.onerror = function() {
+          imgWrap.innerHTML = `
+            <div class="art-card-img-placeholder">
+              <span>🎨</span>
+              <p>${art.filename}</p>
+            </div>
+          `;
+        };
+        imgWrap.appendChild(img);
+        card.appendChild(imgWrap);
+      }
+
+      // ── Header ──
+      const header = document.createElement('div');
+      header.className = 'art-card-header';
+      header.innerHTML = `
+        <div class="art-card-title">${art.title}</div>
+        <div class="art-card-meta">${art.artist} · ${art.date}</div>
+      `;
+      card.appendChild(header);
+
+      // ── Body ──
+      const body = document.createElement('div');
+      body.className = 'art-card-body';
+
+      // Context points
+      const ul = document.createElement('ul');
+      ul.className = 'art-context-list';
+      art.context.forEach(point => {
+        const li = document.createElement('li');
+        li.innerHTML = `<div class="art-context-bullet"></div><div>${point}</div>`;
+        ul.appendChild(li);
+      });
+      body.appendChild(ul);
+
+      // Look for prompt
+      const lookFor = document.createElement('div');
+      lookFor.className = 'art-look-for';
+      lookFor.innerHTML = `
+        <div class="art-look-for-label">What to look for</div>
+        <div class="art-look-for-text">${art.lookFor}</div>
+      `;
+      body.appendChild(lookFor);
+
+      // Connected events
+      if (art.connectedEvents && art.connectedEvents.length > 0) {
+        const connLabel = document.createElement('div');
+        connLabel.className = 'art-connected-label';
+        connLabel.textContent = 'Connected Events';
+        body.appendChild(connLabel);
+
+        const chips = document.createElement('div');
+        chips.className = 'art-connected-chips';
+        art.connectedEvents.forEach(eventId => {
+          const event = EVENTS.find(e => e.id === eventId);
+          if (!event) return;
+          const chip = document.createElement('div');
+          chip.className = 'art-connected-chip';
+          chip.innerHTML = `${event.label}<span class="chip-year">${yearDisplay(event)}</span>`;
+          chips.appendChild(chip);
+        });
+        body.appendChild(chips);
+      }
+
+      card.appendChild(body);
+      container.appendChild(card);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', buildArtTab);
+
+</script>
+
+<!-- Service worker registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/AP-World-History-Review/service-worker.js')
+        .then(reg => console.log('SW registered:', reg.scope))
+        .catch(err => console.log('SW registration failed:', err));
+    });
+  }
+</script>
+
+</body>
+</html>

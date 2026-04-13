@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <!-- Background -->
+  <rect width="192" height="192" rx="32" fill="#1a1f2e"/>
+  
+  <!-- Outer ring -->
+  <circle cx="96" cy="96" r="72" fill="none" stroke="#e8c84a" stroke-width="3" opacity="0.4"/>
+  
+  <!-- Globe latitude lines -->
+  <ellipse cx="96" cy="96" rx="72" ry="28" fill="none" stroke="#e8c84a" stroke-width="1.5" opacity="0.25"/>
+  <ellipse cx="96" cy="96" rx="72" ry="52" fill="none" stroke="#e8c84a" stroke-width="1.5" opacity="0.18"/>
+  
+  <!-- Globe vertical meridian -->
+  <ellipse cx="96" cy="96" rx="28" ry="72" fill="none" stroke="#e8c84a" stroke-width="1.5" opacity="0.25"/>
+  
+  <!-- Horizontal equator -->
+  <line x1="24" y1="96" x2="168" y2="96" stroke="#e8c84a" stroke-width="1.5" opacity="0.25"/>
+  
+  <!-- Vertical prime meridian -->
+  <line x1="96" y1="24" x2="96" y2="168" stroke="#e8c84a" stroke-width="1.5" opacity="0.25"/>
+
+  <!-- AP text -->
+  <text x="96" y="108" 
+        font-family="Georgia, serif" 
+        font-size="44" 
+        font-weight="bold"
+        fill="#e8c84a" 
+        text-anchor="middle"
+        letter-spacing="2">AP</text>
+</svg>

@@ -1,0 +1,25 @@
+{
+  "name": "AP World History Review",
+  "short_name": "AP World",
+  "description": "AP World History timeline, chronology games, and art primary sources",
+  "start_url": "/AP-World-History-Review/",
+  "scope": "/AP-World-History-Review/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1f2e",
+  "theme_color": "#1a1f2e",
+  "icons": [
+    {
+      "src": "icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
