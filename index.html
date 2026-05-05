@@ -2417,17 +2417,24 @@ const ART = [
     submitBtn.disabled = true;
     submitBtn.classList.remove('ready');
 
+    // Rebuild student order from displayed rank numbers (source of truth)
+    const choices = document.getElementById('sort-choices');
+    const studentOrderByRank = [];
+    choices.querySelectorAll('.sort-btn.selected').forEach(btn => {
+      const rank = parseInt(btn.querySelector('.sort-btn-rank').textContent) - 1;
+      studentOrderByRank[rank] = sortItEvents.find(e => e.id === btn.dataset.id);
+    });
+
     // Correct order = sorted by year ascending
     const correctOrder = [...sortItEvents].sort((a, b) => a.year - b.year);
-    const isCorrect = sortItOrder.every((e, i) => e.id === correctOrder[i].id);
+    const isCorrect = studentOrderByRank.every((e, i) => e && e.id === correctOrder[i].id);
 
     // Reveal years and mark correct/wrong
-    const choices = document.getElementById('sort-choices');
     choices.querySelectorAll('.sort-btn').forEach(btn => {
       btn.disabled = true;
       btn.classList.add('reveal-year');
       const eventId = btn.dataset.id;
-      const studentPos = sortItOrder.findIndex(e => e.id === eventId);
+      const studentPos = studentOrderByRank.findIndex(e => e && e.id === eventId);
       const correctPos = correctOrder.findIndex(e => e.id === eventId);
       if (studentPos === correctPos) {
         btn.classList.add('correct-pick');
