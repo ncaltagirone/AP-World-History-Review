@@ -2357,7 +2357,7 @@ const ART = [
     submitBtn.className = 'sort-submit-btn';
     submitBtn.textContent = 'Check Order';
     submitBtn.disabled = true;
-    submitBtn.addEventListener('click', () => checkSortOrder(submitBtn));
+    submitBtn.addEventListener('click', () => checkSortOrder(submitBtn, [...sortItEvents]));
     content.appendChild(submitBtn);
 
     // Feedback
@@ -2382,7 +2382,7 @@ const ART = [
       btn.classList.remove('selected');
       btn.querySelector('.sort-btn-rank').textContent = '—';
       // Re-number remaining
-      renumberSortOrder();
+      renumberSortOrder(btn.closest('.sort-choices'));
     } else {
       // Add to order
       sortItOrder.push(event);
@@ -2400,34 +2400,36 @@ const ART = [
     }
   }
 
-  function renumberSortOrder() {
-    const choices = document.getElementById('sort-choices');
+  function renumberSortOrder(choicesEl) {
     sortItOrder.forEach((event, i) => {
-      const btn = choices.querySelector(`[data-id="${event.id}"]`);
+      const btn = choicesEl.querySelector(`[data-id="${event.id}"]`);
       if (btn) btn.querySelector('.sort-btn-rank').textContent = i + 1;
     });
     // Clear unselected
-    choices.querySelectorAll('.sort-btn:not(.selected) .sort-btn-rank').forEach(el => {
+    choicesEl.querySelectorAll('.sort-btn:not(.selected) .sort-btn-rank').forEach(el => {
       el.textContent = '—';
     });
   }
 
-  function checkSortOrder(submitBtn) {
+  function checkSortOrder(submitBtn, currentEvents) {
     sortItSubmitted = true;
     submitBtn.disabled = true;
     submitBtn.classList.remove('ready');
 
-    // Rebuild student order from displayed rank numbers (source of truth)
-    const choices = document.getElementById('sort-choices');
+    // Use the choices container closest to the submit button (avoids stale getElementById)
+    const choices = submitBtn.parentElement.querySelector('.sort-choices');
+
+    // Rebuild student order from displayed rank numbers — read directly from DOM
     const studentOrderByRank = [];
     choices.querySelectorAll('.sort-btn.selected').forEach(btn => {
       const rank = parseInt(btn.querySelector('.sort-btn-rank').textContent) - 1;
-      studentOrderByRank[rank] = sortItEvents.find(e => e.id === btn.dataset.id);
+      studentOrderByRank[rank] = currentEvents.find(e => e.id === btn.dataset.id);
     });
 
     // Correct order = sorted by year ascending
-    const correctOrder = [...sortItEvents].sort((a, b) => a.year - b.year);
-    const isCorrect = studentOrderByRank.every((e, i) => e && e.id === correctOrder[i].id);
+    const correctOrder = [...currentEvents].sort((a, b) => a.year - b.year);
+    const isCorrect = studentOrderByRank.length === correctOrder.length &&
+                      studentOrderByRank.every((e, i) => e && e.id === correctOrder[i].id);
 
     // Reveal years and mark correct/wrong
     choices.querySelectorAll('.sort-btn').forEach(btn => {
